@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Habit Tracker — Neo Cyber Edition</title>
+<title>Habit Tracker — Neo Cyber Pro Edition</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -11,10 +11,8 @@
     --bg-dark: #0B0A12;
     --card-bg: #13121F;
     --card-border: #232035;
-    
     --text-main: #FFFFFF;
     --text-muted: #8E8B9E;
-    
     --cyan: #00F5D4;
     --cyan-glow: rgba(0, 245, 212, 0.3);
     --purple: #8B5CF6;
@@ -46,8 +44,23 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
   }
-  .header-titles { display: flex; flex-direction: column; gap: 4px; }
+  .header-titles { display: flex; flex-direction: column; gap: 6px; }
+  .header-tag-wrapper { display: flex; align-items: center; gap: 8px; }
+  .pulse-dot {
+    width: 8px; height: 8px;
+    background-color: var(--cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--cyan);
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 245, 212, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 245, 212, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 245, 212, 0); }
+  }
   .header-tag {
     font-size: 0.75rem;
     font-weight: 700;
@@ -61,7 +74,17 @@
     font-weight: 900;
     margin: 0;
     color: var(--text-main);
-    letter-spacing: -0.5px;
+  }
+  .header-metrics { display: flex; gap: 12px; }
+  .level-badge {
+    background: rgba(139, 92, 246, 0.15);
+    border: 1px solid var(--purple);
+    color: #A78BFA;
+    border-radius: 30px;
+    padding: 8px 16px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 800;
+    font-size: 0.85rem;
   }
   .star-badge {
     background: rgba(245, 158, 11, 0.1);
@@ -72,9 +95,37 @@
     font-family: 'Orbitron', sans-serif;
     font-weight: 800;
     font-size: 0.95rem;
+  }
+
+  /* PROGRESS BAR */
+  .progress-container {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+  .progress-info {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .progress-track {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--purple-tab), var(--cyan));
+    border-radius: 10px;
+    box-shadow: 0 0 12px var(--cyan-glow);
+    transition: width 0.4s ease;
   }
 
   /* NAVBAR PILLS */
@@ -99,29 +150,25 @@
     font-size: 0.88rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    white-space: nowrap;
   }
   .nav-btn.active {
     background: var(--purple-tab);
     color: #FFF;
     box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
   }
-  .nav-btn:hover:not(.active) { color: var(--text-main); }
 
-  /* SUBTITLE TEXT */
-  .section-desc {
-    font-size: 0.88rem;
-    color: var(--text-muted);
-    margin: 0 0 20px 4px;
-  }
-
-  /* MAIN CARDS */
+  /* PANEL CARDS WITH HOVER GLOW */
   .panel-card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: 20px;
     padding: 24px 28px;
     margin-bottom: 24px;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+  .panel-card:hover {
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
   }
 
   .card-category {
@@ -137,95 +184,62 @@
     font-family: 'Orbitron', sans-serif;
     font-weight: 800;
     font-size: 1.35rem;
-    margin: 0 0 8px;
-    color: var(--text-main);
+    margin: 0 0 16px;
   }
 
-  .card-subtitle {
-    color: var(--text-muted);
-    font-size: 0.88rem;
-    margin-bottom: 16px;
-    font-style: italic;
-  }
-
-  .link-action {
-    color: var(--cyan);
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 0.88rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 20px;
-    cursor: pointer;
-  }
-  .link-action:hover { text-decoration: underline; }
-
-  /* LIST ITEMS */
-  .habit-list {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .habit-item {
+  /* TIMER POMODORO */
+  .timer-box {
     display: flex;
     align-items: center;
-    gap: 12px;
-    color: #E2E8F0;
-    font-size: 0.9rem;
-    line-height: 1.4;
-  }
-  .habit-item::before {
-    content: "•";
-    color: var(--text-muted);
-    font-size: 1.2rem;
-  }
-
-  /* PILL TAGS */
-  .tag-cloud {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 24px;
-  }
-  .tag-pill {
-    background: rgba(255, 255, 255, 0.04);
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 0.3);
     border: 1px solid var(--card-border);
-    color: #E2E8F0;
-    padding: 8px 16px;
-    border-radius: 30px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* ACTION BUTTON */
-  .action-btn {
-    width: 100%;
-    background: var(--cyan);
-    color: #000;
-    border: none;
+    padding: 16px 20px;
     border-radius: 12px;
-    padding: 14px 20px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-weight: 800;
-    font-size: 0.95rem;
-    cursor: pointer;
-    box-shadow: 0 0 20px var(--cyan-glow);
-    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 20px;
   }
-  .action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 25px rgba(0, 245, 212, 0.5);
+  .timer-display {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--cyan);
+  }
+  .timer-controls { display: flex; gap: 8px; }
+  .btn-small {
+    background: var(--card-border);
+    color: #FFF;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-small:hover { background: var(--purple-tab); }
+
+  /* FILTRES CATÉGORIES */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .filter-chip {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+  .filter-chip.active {
+    background: rgba(0, 245, 212, 0.1);
+    border-color: var(--cyan);
+    color: var(--cyan);
   }
 
   /* TABLE DESIGN */
-  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  table { width: 100%; border-collapse: collapse; }
   th { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; padding: 10px; font-weight: 700; }
   td { padding: 12px 10px; text-align: center; border-top: 1px solid var(--card-border); }
   td.name { text-align: left; font-weight: 600; font-size: 0.9rem; }
@@ -252,6 +266,21 @@
     display: flex; align-items: center; justify-content: center;
     color: #000; font-weight: 900; font-size: 0.85rem;
   }
+
+  /* JOURNAL AREA */
+  textarea {
+    width: 100%;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 12px;
+    color: #FFF;
+    font-family: inherit;
+    resize: none;
+    outline: none;
+  }
+  textarea:focus { border-color: var(--purple); }
 </style>
 </head>
 <body>
@@ -261,10 +290,27 @@
   <!-- HEADER -->
   <div class="header-card">
     <div class="header-titles">
-      <div class="header-tag">SEMAINE EN COURS</div>
+      <div class="header-tag-wrapper">
+        <div class="pulse-dot"></div>
+        <div class="header-tag">SEMAINE EN COURS</div>
+      </div>
       <h1 class="header-title">L'app complète</h1>
     </div>
-    <div class="star-badge">★ <span id="scoreVal">120</span></div>
+    <div class="header-metrics">
+      <div class="level-badge" id="lvlBadge">LVL 1</div>
+      <div class="star-badge">★ <span id="scoreVal">0</span></div>
+    </div>
+  </div>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-container">
+    <div class="progress-info">
+      <span>PROGRESSION DE LA SEMAINE</span>
+      <span id="progressText" style="color: var(--cyan);">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
   </div>
 
   <!-- NAVIGATION PILLS -->
@@ -273,40 +319,34 @@
     <button class="nav-btn">📊 Stats</button>
     <button class="nav-btn">🎯 Parcours</button>
     <button class="nav-btn">⚡ Habitudes</button>
-    <button class="nav-btn">🧠 Discipline</button>
   </div>
 
-  <div class="section-desc">Tes objectifs de la semaine et le suivi de tes routines daily.</div>
-
-  <!-- MAIN CARD 1 -->
+  <!-- POMODORO TIMER -->
   <div class="panel-card">
-    <div class="card-category">DISCIPLINE &amp; PERFORMANCES</div>
-    <h2 class="card-title">Routine de Chasseur (100% Focus)</h2>
-    <div class="card-subtitle">"L'exécution quotidienne bat le talent à tous les coups."</div>
-    <div class="link-action">Voir les détails du programme ►</div>
-
-    <ul class="habit-list">
-      <li class="habit-item">Réveil 06:30 + Douche froide (activation mentale immédiate)</li>
-      <li class="habit-item">Session Focus 2h : Trading, Backtest &amp; analyse technique</li>
-      <li class="habit-item">Entraînement Physique : Musculation / Cardio quotidien</li>
-      <li class="habit-item">Diète : Zéro sucre transformé, hydratation 3L d'eau</li>
-    </ul>
-
-    <div class="tag-cloud">
-      <div class="tag-pill">🔥 Streak : 5 jours</div>
-      <div class="tag-pill">⚡ SMC &amp; ICT</div>
-      <div class="tag-pill">🎯 Goal : 100%</div>
-      <div class="tag-pill">🧠 Mindset Pro</div>
+    <div class="card-category">FOCUS TIMER</div>
+    <div class="timer-box">
+      <div>
+        <div style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">CHRONO FOCUS (25 MIN)</div>
+        <div class="timer-display" id="timerDisplay">25:00</div>
+      </div>
+      <div class="timer-controls">
+        <button class="btn-small" onclick="toggleTimer()" id="timerBtn">Start</button>
+        <button class="btn-small" onclick="resetTimer()">Reset</button>
+      </div>
     </div>
-
-    <button class="action-btn">Valider la journée (+10 ★)</button>
   </div>
 
-  <!-- MAIN CARD 2 (TABLEAU) -->
+  <!-- HABIT TABLE CARD -->
   <div class="panel-card">
     <div class="card-category">SUIVI HEBDOMADAIRE</div>
-    <h2 class="card-title">Habitudes Clés</h2>
+    <h2 class="card-title">Matrice des Habitudes</h2>
     
+    <div class="filter-bar">
+      <div class="filter-chip active" onclick="filterHabits('all', this)">Tous</div>
+      <div class="filter-chip" onclick="filterHabits('tech', this)">Trading &amp; Tech</div>
+      <div class="filter-chip" onclick="filterHabits('body', this)">Physique &amp; Santé</div>
+    </div>
+
     <table>
       <thead>
         <tr>
@@ -314,42 +354,140 @@
           <th>Lun</th><th>Mar</th><th>Mer</th><th>Jeu</th><th>Ven</th><th>Sam</th><th>Dim</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td class="name">Sport &amp; Physique</td>
-          <td><input type="checkbox" checked></td>
-          <td><input type="checkbox" checked></td>
-          <td><input type="checkbox" checked></td>
-          <td><input type="checkbox"></td>
-          <td><input type="checkbox"></td>
-          <td><input type="checkbox"></td>
-          <td><input type="checkbox"></td>
+      <tbody id="habitBody">
+        <tr data-cat="body">
+          <td class="name">Sport &amp; Entraînement</td>
+          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
         </tr>
-        <tr>
-          <td class="name">Backtest / Graphiques</td>
-          <td><input type="checkbox" checked></td>
-          <td><input type="checkbox" checked></td>
-          <td><input type="checkbox" checked></td>
-          <td><input type="checkbox" checked></td>
-          <td><input type="checkbox"></td>
-          <td><input type="checkbox"></td>
-          <td><input type="checkbox"></td>
+        <tr data-cat="tech">
+          <td class="name">Backtest / Analyse Chart</td>
+          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
         </tr>
-        <tr>
-          <td class="name">Lecture / Dev Personnel</td>
-          <td><input type="checkbox" checked></td>
-          <td><input type="checkbox"></td>
-          <td><input type="checkbox" checked></td>
-          <td><input type="checkbox"></td>
-          <td><input type="checkbox"></td>
-          <td><input type="checkbox"></td>
-          <td><input type="checkbox"></td>
+        <tr data-cat="tech">
+          <td class="name">Session Code &amp; Projets</td>
+          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+        </tr>
+        <tr data-cat="body">
+          <td class="name">Diète &amp; 3L d'eau</td>
+          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
         </tr>
       </tbody>
     </table>
   </div>
 
+  <!-- DAILY JOURNAL CARD -->
+  <div class="panel-card">
+    <div class="card-category">JOURNAL DE SESSION</div>
+    <h2 class="card-title" style="font-size:1.1rem; margin-bottom:10px;">Bilan &amp; Notes du Jour</h2>
+    <textarea id="journalNote" placeholder="Notes tes réussites, tes erreurs de trading ou ton état d'esprit..."></textarea>
+  </div>
+
 </div>
+
+<script>
+  // Dynamic Score & Progress System
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  const scoreVal = document.getElementById('scoreVal');
+  const lvlBadge = document.getElementById('lvlBadge');
+  const progressFill = document.getElementById('progressFill');
+  const progressText = document.getElementById('progressText');
+  const journalNote = document.getElementById('journalNote');
+
+  function updateMetrics() {
+    let total = checkboxes.length;
+    let checkedCount = 0;
+
+    checkboxes.forEach((box, index) => {
+      if (box.checked) checkedCount++;
+      localStorage.setItem('habit_' + index, box.checked);
+    });
+
+    let score = checkedCount * 10;
+    let percentage = Math.round((checkedCount / total) * 100);
+
+    scoreVal.innerText = score;
+    progressFill.style.width = percentage + '%';
+    progressText.innerText = percentage + '%';
+
+    // Level System
+    let level = Math.floor(score / 50) + 1;
+    lvlBadge.innerText = 'LVL ' + level;
+  }
+
+  // Load Saved Data
+  checkboxes.forEach((box, index) => {
+    const saved = localStorage.getItem('habit_' + index);
+    if (saved === 'true') box.checked = true;
+    box.addEventListener('change', updateMetrics);
+  });
+
+  if (localStorage.getItem('daily_note')) {
+    journalNote.value = localStorage.getItem('daily_note');
+  }
+  journalNote.addEventListener('input', () => {
+    localStorage.setItem('daily_note', journalNote.value);
+  });
+
+  updateMetrics();
+
+  // Category Filters
+  function filterHabits(category, element) {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    element.classList.add('active');
+
+    const rows = document.querySelectorAll('#habitBody tr');
+    rows.forEach(row => {
+      if (category === 'all' || row.getAttribute('data-cat') === category) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  // Pomodoro Timer Logic
+  let timeLeft = 1500;
+  let timerInterval = null;
+
+  function updateTimerDisplay() {
+    let m = Math.floor(timeLeft / 60);
+    let s = timeLeft % 60;
+    document.getElementById('timerDisplay').innerText = 
+      `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+  }
+
+  function toggleTimer() {
+    const btn = document.getElementById('timerBtn');
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      btn.innerText = 'Start';
+    } else {
+      btn.innerText = 'Pause';
+      timerInterval = setInterval(() => {
+        if (timeLeft > 0) {
+          timeLeft--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(timerInterval);
+          alert('Session Focus terminée !');
+        }
+      }, 1000);
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    timeLeft = 1500;
+    document.getElementById('timerBtn').innerText = 'Start';
+    updateTimerDisplay();
+  }
+</script>
 
 </body>
 </html>
