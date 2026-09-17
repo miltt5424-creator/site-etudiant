@@ -44,8 +44,6 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
   }
   .header-titles { display: flex; flex-direction: column; gap: 6px; }
   .header-tag-wrapper { display: flex; align-items: center; gap: 8px; }
@@ -157,6 +155,10 @@
     box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
   }
 
+  /* TAB CONTENT MANAGEMENT */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
   /* PANEL CARDS WITH HOVER GLOW */
   .panel-card {
     background: var(--card-bg);
@@ -217,11 +219,7 @@
   .btn-small:hover { background: var(--purple-tab); }
 
   /* FILTRES CATÉGORIES */
-  .filter-bar {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; }
   .filter-chip {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--card-border);
@@ -265,6 +263,27 @@
     position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
     color: #000; font-weight: 900; font-size: 0.85rem;
+  }
+
+  /* STATS UI ELEMENTS */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+  .stat-card {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-val { font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 800; color: var(--cyan); margin: 8px 0; }
+  .stat-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+
+  /* TIMELINE PARCOURS */
+  .timeline { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+  .timeline-item {
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 3px solid var(--purple);
+    padding: 16px 20px;
+    border-radius: 0 12px 12px 0;
   }
 
   /* JOURNAL AREA */
@@ -315,80 +334,138 @@
 
   <!-- NAVIGATION PILLS -->
   <div class="nav-pills">
-    <button class="nav-btn active">🏠 Accueil</button>
-    <button class="nav-btn">📊 Stats</button>
-    <button class="nav-btn">🎯 Parcours</button>
-    <button class="nav-btn">⚡ Habitudes</button>
+    <button class="nav-btn active" onclick="switchTab('accueil', this)">🏠 Accueil</button>
+    <button class="nav-btn" onclick="switchTab('stats', this)">📊 Stats</button>
+    <button class="nav-btn" onclick="switchTab('parcours', this)">🎯 Parcours</button>
+    <button class="nav-btn" onclick="switchTab('habitudes', this)">⚡ Habitudes</button>
   </div>
 
-  <!-- POMODORO TIMER -->
-  <div class="panel-card">
-    <div class="card-category">FOCUS TIMER</div>
-    <div class="timer-box">
-      <div>
-        <div style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">CHRONO FOCUS (25 MIN)</div>
-        <div class="timer-display" id="timerDisplay">25:00</div>
+  <!-- TAB 1: ACCUEIL -->
+  <div id="tab-accueil" class="tab-content active">
+    <div class="panel-card">
+      <div class="card-category">FOCUS TIMER</div>
+      <div class="timer-box">
+        <div>
+          <div style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">CHRONO FOCUS (25 MIN)</div>
+          <div class="timer-display" id="timerDisplay">25:00</div>
+        </div>
+        <div class="timer-controls">
+          <button class="btn-small" onclick="toggleTimer()" id="timerBtn">Start</button>
+          <button class="btn-small" onclick="resetTimer()">Reset</button>
+        </div>
       </div>
-      <div class="timer-controls">
-        <button class="btn-small" onclick="toggleTimer()" id="timerBtn">Start</button>
-        <button class="btn-small" onclick="resetTimer()">Reset</button>
+    </div>
+
+    <div class="panel-card">
+      <div class="card-category">JOURNAL DE SESSION</div>
+      <h2 class="card-title" style="font-size:1.1rem; margin-bottom:10px;">Bilan &amp; Notes du Jour</h2>
+      <textarea id="journalNote" placeholder="Notes tes réussites, tes erreurs de trading ou ton état d'esprit..."></textarea>
+    </div>
+  </div>
+
+  <!-- TAB 2: STATS -->
+  <div id="tab-stats" class="tab-content">
+    <div class="panel-card">
+      <div class="card-category">ANALYTICS &amp; PERFORMANCE</div>
+      <h2 class="card-title">Statistiques Globales</h2>
+      
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Série Actuelle</div>
+          <div class="stat-val">5 Jours</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Taux d'Exécution</div>
+          <div class="stat-val" id="statRate">0%</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Actions Validées</div>
+          <div class="stat-val" id="statCount">0</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- HABIT TABLE CARD -->
-  <div class="panel-card">
-    <div class="card-category">SUIVI HEBDOMADAIRE</div>
-    <h2 class="card-title">Matrice des Habitudes</h2>
-    
-    <div class="filter-bar">
-      <div class="filter-chip active" onclick="filterHabits('all', this)">Tous</div>
-      <div class="filter-chip" onclick="filterHabits('tech', this)">Trading &amp; Tech</div>
-      <div class="filter-chip" onclick="filterHabits('body', this)">Physique &amp; Santé</div>
+  <!-- TAB 3: PARCOURS -->
+  <div id="tab-parcours" class="tab-content">
+    <div class="panel-card">
+      <div class="card-category">FEUILLE DE ROUTE</div>
+      <h2 class="card-title">Prochains Jalons</h2>
+      
+      <div class="timeline">
+        <div class="timeline-item">
+          <div style="font-size:0.75rem; color:var(--cyan); font-weight:800;">NIVEAU 1 • DÉBUTANT</div>
+          <div style="font-weight:700; margin-top:4px;">Instaurer la régularité (50 Étoiles)</div>
+        </div>
+        <div class="timeline-item" style="border-color: var(--card-border);">
+          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:800;">NIVEAU 2 • OPERATOR</div>
+          <div style="font-weight:700; margin-top:4px;">Maintenir 80% d'exécution sur 2 semaines</div>
+        </div>
+        <div class="timeline-item" style="border-color: var(--card-border);">
+          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:800;">NIVEAU 3 • MASTER</div>
+          <div style="font-weight:700; margin-top:4px;">Valider 30 jours consécutifs de Focus</div>
+        </div>
+      </div>
     </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th style="text-align:left;">Habitude</th>
-          <th>Lun</th><th>Mar</th><th>Mer</th><th>Jeu</th><th>Ven</th><th>Sam</th><th>Dim</th>
-        </tr>
-      </thead>
-      <tbody id="habitBody">
-        <tr data-cat="body">
-          <td class="name">Sport &amp; Entraînement</td>
-          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
-          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
-        </tr>
-        <tr data-cat="tech">
-          <td class="name">Backtest / Analyse Chart</td>
-          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
-          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
-        </tr>
-        <tr data-cat="tech">
-          <td class="name">Session Code &amp; Projets</td>
-          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
-          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
-        </tr>
-        <tr data-cat="body">
-          <td class="name">Diète &amp; 3L d'eau</td>
-          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
-          <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 
-  <!-- DAILY JOURNAL CARD -->
-  <div class="panel-card">
-    <div class="card-category">JOURNAL DE SESSION</div>
-    <h2 class="card-title" style="font-size:1.1rem; margin-bottom:10px;">Bilan &amp; Notes du Jour</h2>
-    <textarea id="journalNote" placeholder="Notes tes réussites, tes erreurs de trading ou ton état d'esprit..."></textarea>
+  <!-- TAB 4: HABITUDES -->
+  <div id="tab-habitudes" class="tab-content">
+    <div class="panel-card">
+      <div class="card-category">SUIVI HEBDOMADAIRE</div>
+      <h2 class="card-title">Matrice des Habitudes</h2>
+      
+      <div class="filter-bar">
+        <div class="filter-chip active" onclick="filterHabits('all', this)">Tous</div>
+        <div class="filter-chip" onclick="filterHabits('tech', this)">Trading &amp; Tech</div>
+        <div class="filter-chip" onclick="filterHabits('body', this)">Physique &amp; Santé</div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left;">Habitude</th>
+            <th>Lun</th><th>Mar</th><th>Mer</th><th>Jeu</th><th>Ven</th><th>Sam</th><th>Dim</th>
+          </tr>
+        </thead>
+        <tbody id="habitBody">
+          <tr data-cat="body">
+            <td class="name">Sport &amp; Entraînement</td>
+            <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+            <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+          </tr>
+          <tr data-cat="tech">
+            <td class="name">Backtest / Analyse Chart</td>
+            <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+            <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+          </tr>
+          <tr data-cat="tech">
+            <td class="name">Session Code &amp; Projets</td>
+            <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+            <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+          </tr>
+          <tr data-cat="body">
+            <td class="name">Diète &amp; 3L d'eau</td>
+            <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+            <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
 </div>
 
 <script>
+  // Tab Switching Function
+  function switchTab(tabName, element) {
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+    element.classList.add('active');
+    document.getElementById('tab-' + tabName).classList.add('active');
+  }
+
   // Dynamic Score & Progress System
   const checkboxes = document.querySelectorAll('input[type="checkbox"]');
   const scoreVal = document.getElementById('scoreVal');
@@ -412,6 +489,10 @@
     scoreVal.innerText = score;
     progressFill.style.width = percentage + '%';
     progressText.innerText = percentage + '%';
+
+    // Update Stats Tab
+    document.getElementById('statRate').innerText = percentage + '%';
+    document.getElementById('statCount').innerText = checkedCount;
 
     // Level System
     let level = Math.floor(score / 50) + 1;
