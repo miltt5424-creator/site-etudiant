@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Tracker — Neo Cyber Ultimate Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- CDN Chart.js pour les graphiques -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --bg-dark: #0B0A12;
+    --card-bg: #13121F;
+    --card-border: #232035;
+    --text-main: #FFFFFF;
+    --text-muted: #8E8B9E;
+    --cyan: #00F5D4;
+    --cyan-glow: rgba(0, 245, 212, 0.3);
+    --purple: #8B5CF6;
+    --purple-tab: #7C3AED;
+    --pink: #F43F5E;
+    --gold: #F59E0B;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    padding: 32px 16px 80px;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .container { max-width: 900px; margin: 0 auto; }
+
+  /* HEADER BLOCK */
+  .header-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .header-titles { display: flex; flex-direction: column; gap: 6px; }
+  .header-tag-wrapper { display: flex; align-items: center; gap: 8px; }
+  .pulse-dot {
+    width: 8px; height: 8px;
+    background-color: var(--cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--cyan);
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 245, 212, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 245, 212, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 245, 212, 0); }
+  }
+  .header-tag { font-size: 0.75rem; font-weight: 700; color: var(--cyan); letter-spacing: 1.5px; text-transform: uppercase; }
+  .header-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; font-weight: 900; margin: 0; }
+  .header-metrics { display: flex; gap: 12px; }
+  .level-badge { background: rgba(139, 92, 246, 0.15); border: 1px solid var(--purple); color: #A78BFA; border-radius: 30px; padding: 8px 16px; font-family: 'Orbitron', sans-serif; font-weight: 800; font-size: 0.85rem; }
+  .star-badge { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); color: var(--gold); border-radius: 30px; padding: 8px 18px; font-family: 'Orbitron', sans-serif; font-weight: 800; font-size: 0.95rem; }
+
+  /* PROGRESS BAR */
+  .progress-container { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; }
+  .progress-info { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; }
+  .progress-track { width: 100%; height: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--purple-tab), var(--cyan)); border-radius: 10px; box-shadow: 0 0 12px var(--cyan-glow); transition: width 0.4s ease; }
+
+  /* NAVBAR PILLS */
+  .nav-pills { display: flex; gap: 8px; background: var(--card-bg); border: 1px solid var(--card-border); padding: 6px; border-radius: 40px; margin-bottom: 24px; overflow-x: auto; }
+  .nav-btn { background: transparent; border: none; color: var(--text-muted); padding: 10px 20px; border-radius: 30px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: all 0.2s ease; }
+  .nav-btn.active { background: var(--purple-tab); color: #FFF; box-shadow: 0 0 15px rgba(124, 58, 237, 0.4); }
+
+  /* TAB CONTENT */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .panel-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 24px 28px; margin-bottom: 24px; }
+  .card-category { color: var(--pink); font-size: 0.72rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+  .card-title { font-family: 'Orbitron', sans-serif; font-weight: 800; font-size: 1.35rem; margin: 0 0 16px; }
+
+  /* MOOD & PSYCHO SELECTOR */
+  .mood-selector { display: flex; gap: 12px; margin-top: 10px; }
+  .mood-btn { background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); padding: 12px 16px; border-radius: 12px; cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
+  .mood-btn:hover, .mood-btn.selected { border-color: var(--cyan); background: rgba(0, 245, 212, 0.1); }
+
+  /* HEATMAP CALENDAR */
+  .heatmap-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 12px; }
+  .heat-day { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); }
+  .heat-day.high { background: rgba(0, 245, 212, 0.3); border-color: var(--cyan); color: #FFF; }
+  .heat-day.med { background: rgba(139, 92, 246, 0.3); border-color: var(--purple); color: #FFF; }
+
+  /* INPUTS & TEXTAREA */
+  textarea, input[type="text"] { width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--card-border); border-radius: 12px; padding: 12px; color: #FFF; font-family: inherit; outline: none; }
+  textarea:focus, input[type="text"]:focus { border-color: var(--purple); }
+
+  /* TABLE DESIGN */
+  table { width: 100%; border-collapse: collapse; }
+  th { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; padding: 10px; font-weight: 700; }
+  td { padding: 12px 10px; text-align: center; border-top: 1px solid var(--card-border); }
+  td.name { text-align: left; font-weight: 600; font-size: 0.9rem; }
+
+  input[type=checkbox] { appearance: none; width: 22px; height: 22px; border-radius: 6px; border: 1px solid var(--card-border); background: rgba(0,0,0,0.3); cursor: pointer; position: relative; }
+  input[type=checkbox]:checked { background: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 10px var(--cyan-glow); }
+  input[type=checkbox]:checked::after { content: "✓"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #000; font-weight: 900; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header-card">
+    <div class="header-titles">
+      <div class="header-tag-wrapper">
+        <div class="pulse-dot"></div>
+        <div class="header-tag">SYSTEM ACTIVE</div>
+      </div>
+      <h1 class="header-title">Ultimate Tracker</h1>
+    </div>
+    <div class="header-metrics">
+      <div class="level-badge" id="lvlBadge">LVL 1</div>
+      <div class="star-badge">★ <span id="scoreVal">0</span></div>
+    </div>
+  </div>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-container">
+    <div class="progress-info">
+      <span>PROGRESSION DU JOUR</span>
+      <span id="progressText" style="color: var(--cyan);">0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <!-- NAV PILLS -->
+  <div class="nav-pills">
+    <button class="nav-btn active" onclick="switchTab('accueil', this)">🏠 Accueil</button>
+    <button class="nav-btn" onclick="switchTab('stats', this)">📊 Graphiques</button>
+    <button class="nav-btn" onclick="switchTab('psycho', this)">🧠 Mindset &amp; Mood</button>
+    <button class="nav-btn" onclick="switchTab('habitudes', this)">⚡ Habitudes</button>
+  </div>
+
+  <!-- TAB 1: ACCUEIL -->
+  <div id="tab-accueil" class="tab-content active">
+    <div class="panel-card">
+      <div class="card-category">MINDSET DU JOUR</div>
+      <h2 class="card-title" style="font-size:1.1rem; margin-bottom:10px;">Focus &amp; Objectif Principal</h2>
+      <input type="text" placeholder="Quel est ton unique objectif prioritaire aujourd'hui ?">
+    </div>
+
+    <div class="panel-card">
+      <div class="card-category">CALENDRIER D'EXÉCUTION (HEATMAP)</div>
+      <h2 class="card-title" style="font-size:1.1rem; margin-bottom:10px;">Suivi de la Semaine</h2>
+      <div class="heatmap-grid">
+        <div class="heat-day high">L</div>
+        <div class="heat-day high">M</div>
+        <div class="heat-day med">M</div>
+        <div class="heat-day high">J</div>
+        <div class="heat-day">V</div>
+        <div class="heat-day">S</div>
+        <div class="heat-day">D</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: STATS (GRAPHISTES CHART.JS) -->
+  <div id="tab-stats" class="tab-content">
+    <div class="panel-card">
+      <div class="card-category">ANALYTICS VISUELS</div>
+      <h2 class="card-title">Courbe de Discipline</h2>
+      <canvas id="disciplineChart" style="max-height:250px;"></canvas>
+    </div>
+  </div>
+
+  <!-- TAB 3: PSYCHO & MOOD -->
+  <div id="tab-psycho" class="tab-content">
+    <div class="panel-card">
+      <div class="card-category">PSYCHOLOGIE &amp; ÉNERGIE</div>
+      <h2 class="card-title">État d'Esprit &amp; Humeur</h2>
+      <p style="color:var(--text-muted); font-size:0.85rem;">Sélectionne ton niveau d'énergie aujourd'hui :</p>
+      <div class="mood-selector">
+        <button class="mood-btn" onclick="selectMood(this)">⚡ 100%</button>
+        <button class="mood-btn" onclick="selectMood(this)">🔥 Focus</button>
+        <button class="mood-btn" onclick="selectMood(this)">😐 Neutre</button>
+        <button class="mood-btn" onclick="selectMood(this)">🪫 Fatigué</button>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="card-category">DISCIPLINE CHECK</div>
+      <h2 class="card-title" style="font-size:1.1rem;">Biais Psychologiques &amp; Contrôle</h2>
+      <label style="display:flex; align-items:center; gap:10px; margin-bottom:10px; cursor:pointer;">
+        <input type="checkbox"> <span>Plan suivi à 100% sans FOMO / Impulsivité</span>
+      </label>
+      <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+        <input type="checkbox"> <span>Zéro distraction durant les sessions Focus</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- TAB 4: HABITUDES -->
+  <div id="tab-habitudes" class="tab-content">
+    <div class="panel-card">
+      <div class="card-category">SUIVI HEBDOMADAIRE</div>
+      <h2 class="card-title">Matrice des Habitudes</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left;">Habitude</th>
+            <th>Lun</th><th>Mar</th><th>Mer</th><th>Jeu</th><th>Ven</th><th>Sam</th><th>Dim</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="name">Sport / Physical Workout</td>
+            <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+            <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+          </tr>
+          <tr>
+            <td class="name">Backtest &amp; Market Analysis</td>
+            <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+            <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function switchTab(tabName, element) {
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+    element.classList.add('active');
+    document.getElementById('tab-' + tabName).classList.add('active');
+  }
+
+  function selectMood(btn) {
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+
+  // Initialisation Chart.js
+  const ctx = document.getElementById('disciplineChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+      datasets: [{
+        label: '% Discipline',
+        data: [80, 100, 60, 90, 75, 85, 95],
+        borderColor: '#00F5D4',
+        backgroundColor: 'rgba(0, 245, 212, 0.1)',
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true, max: 100, grid: { color: '#232035' } },
+        x: { grid: { color: '#232035' } }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
