@@ -218,6 +218,30 @@
   }
   .btn-small:hover { background: var(--purple-tab); }
 
+  /* FORMULAIRE D'AJOUT D'HABITUDE */
+  .add-habit-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .input-text {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #FFF;
+    font-family: inherit;
+  }
+  .select-cat {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 10px;
+    color: #FFF;
+    font-family: inherit;
+  }
+
   /* FILTRES CATÉGORIES */
   .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; }
   .filter-chip {
@@ -359,7 +383,7 @@
     <div class="panel-card">
       <div class="card-category">JOURNAL DE SESSION</div>
       <h2 class="card-title" style="font-size:1.1rem; margin-bottom:10px;">Bilan &amp; Notes du Jour</h2>
-      <textarea id="journalNote" placeholder="Notes tes réussites, tes erreurs de trading ou ton état d'esprit..."></textarea>
+      <textarea id="journalNote" placeholder="Notes tes réussites, tes erreurs ou ton état d'esprit..."></textarea>
     </div>
   </div>
 
@@ -372,7 +396,7 @@
       <div class="stat-grid">
         <div class="stat-card">
           <div class="stat-label">Série Actuelle</div>
-          <div class="stat-val">5 Jours</div>
+          <div class="stat-val" id="streakVal">5 Jours</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Taux d'Exécution</div>
@@ -393,15 +417,15 @@
       <h2 class="card-title">Prochains Jalons</h2>
       
       <div class="timeline">
-        <div class="timeline-item">
+        <div class="timeline-item" id="milestone1">
           <div style="font-size:0.75rem; color:var(--cyan); font-weight:800;">NIVEAU 1 • DÉBUTANT</div>
           <div style="font-weight:700; margin-top:4px;">Instaurer la régularité (50 Étoiles)</div>
         </div>
-        <div class="timeline-item" style="border-color: var(--card-border);">
+        <div class="timeline-item" id="milestone2" style="border-color: var(--card-border);">
           <div style="font-size:0.75rem; color:var(--text-muted); font-weight:800;">NIVEAU 2 • OPERATOR</div>
           <div style="font-weight:700; margin-top:4px;">Maintenir 80% d'exécution sur 2 semaines</div>
         </div>
-        <div class="timeline-item" style="border-color: var(--card-border);">
+        <div class="timeline-item" id="milestone3" style="border-color: var(--card-border);">
           <div style="font-size:0.75rem; color:var(--text-muted); font-weight:800;">NIVEAU 3 • MASTER</div>
           <div style="font-weight:700; margin-top:4px;">Valider 30 jours consécutifs de Focus</div>
         </div>
@@ -412,6 +436,17 @@
   <!-- TAB 4: HABITUDES -->
   <div id="tab-habitudes" class="tab-content">
     <div class="panel-card">
+      <div class="card-category">CREATION</div>
+      <h2 class="card-title" style="font-size:1.1rem; margin-bottom:12px;">Ajouter une Habitude</h2>
+      <div class="add-habit-box">
+        <input type="text" id="newHabitInput" class="input-text" placeholder="Ex: Backtest 1h, Course, Lecture...">
+        <select id="newHabitCat" class="select-cat">
+          <option value="tech">Trading &amp; Tech</option>
+          <option value="body">Physique &amp; Santé</option>
+        </select>
+        <button class="btn-small" style="background: var(--cyan); color:#000;" onclick="addNewHabit()">Ajouter</button>
+      </div>
+
       <div class="card-category">SUIVI HEBDOMADAIRE</div>
       <h2 class="card-title">Matrice des Habitudes</h2>
       
@@ -457,7 +492,7 @@
 </div>
 
 <script>
-  // Tab Switching Function
+  // Dynamic Tab Switching
   function switchTab(tabName, element) {
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -466,15 +501,14 @@
     document.getElementById('tab-' + tabName).classList.add('active');
   }
 
-  // Dynamic Score & Progress System
-  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-  const scoreVal = document.getElementById('scoreVal');
-  const lvlBadge = document.getElementById('lvlBadge');
-  const progressFill = document.getElementById('progressFill');
-  const progressText = document.getElementById('progressText');
-  const journalNote = document.getElementById('journalNote');
-
+  // Dynamic Score & Progress Metrics
   function updateMetrics() {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const scoreVal = document.getElementById('scoreVal');
+    const lvlBadge = document.getElementById('lvlBadge');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+
     let total = checkboxes.length;
     let checkedCount = 0;
 
@@ -484,7 +518,7 @@
     });
 
     let score = checkedCount * 10;
-    let percentage = Math.round((checkedCount / total) * 100);
+    let percentage = total > 0 ? Math.round((checkedCount / total) * 100) : 0;
 
     scoreVal.innerText = score;
     progressFill.style.width = percentage + '%';
@@ -494,26 +528,59 @@
     document.getElementById('statRate').innerText = percentage + '%';
     document.getElementById('statCount').innerText = checkedCount;
 
-    // Level System
+    // Level & Milestone Progress
     let level = Math.floor(score / 50) + 1;
     lvlBadge.innerText = 'LVL ' + level;
+
+    if (score >= 50) {
+      document.getElementById('milestone2').style.borderColor = 'var(--purple)';
+      document.getElementById('milestone2').querySelector('div').style.color = 'var(--cyan)';
+    }
   }
 
-  // Load Saved Data
-  checkboxes.forEach((box, index) => {
-    const saved = localStorage.getItem('habit_' + index);
-    if (saved === 'true') box.checked = true;
-    box.addEventListener('change', updateMetrics);
-  });
+  // Bind Listeners
+  function attachCheckboxEvents() {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach((box, index) => {
+      const saved = localStorage.getItem('habit_' + index);
+      if (saved === 'true') box.checked = true;
+      box.removeEventListener('change', updateMetrics);
+      box.addEventListener('change', updateMetrics);
+    });
+    updateMetrics();
+  }
 
+  // Add Custom Habit Dynamically
+  function addNewHabit() {
+    const input = document.getElementById('newHabitInput');
+    const cat = document.getElementById('newHabitCat').value;
+    const name = input.value.trim();
+
+    if (!name) return;
+
+    const tbody = document.getElementById('habitBody');
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-cat', cat);
+
+    tr.innerHTML = `
+      <td class="name">${name}</td>
+      <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+      <td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td>
+    `;
+
+    tbody.appendChild(tr);
+    input.value = '';
+    attachCheckboxEvents();
+  }
+
+  // Local Storage for Journal Note
+  const journalNote = document.getElementById('journalNote');
   if (localStorage.getItem('daily_note')) {
     journalNote.value = localStorage.getItem('daily_note');
   }
   journalNote.addEventListener('input', () => {
     localStorage.setItem('daily_note', journalNote.value);
   });
-
-  updateMetrics();
 
   // Category Filters
   function filterHabits(category, element) {
@@ -568,6 +635,9 @@
     document.getElementById('timerBtn').innerText = 'Start';
     updateTimerDisplay();
   }
+
+  // Initial Execution
+  attachCheckboxEvents();
 </script>
 
 </body>
