@@ -1,1 +1,1161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Español 1ère — App complète</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#030712; --card-bg:rgba(17,24,39,.55); --card-hover:rgba(31,41,55,.75);
+    --border:rgba(255,255,255,.1); --border-glow:rgba(20,184,166,.4);
+    --text:#f9fafb; --ink:#f9fafb; --ivory:#f9fafb; --navy:#ffffff; --navy-light:#1f2937;
+    --muted:#9ca3af;
+    --teal:#14b8a6; --purple:#a855f7; --marigold:#f59e0b; --amber:#f59e0b;
+    --coral:#f43f5e; --rose:#f43f5e; --plum:#a855f7; --green:#10b981; --red:#f43f5e;
+    --font-display:'Syne', sans-serif;
+    --font-body:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --glass-bg: var(--card-bg);
+    --glass-bg-soft: rgba(17,24,39,.4);
+    --glass-border: var(--border);
+    --glass-blur: blur(20px);
+    --shadow-glow: 0 10px 30px -10px rgba(20,184,166,.35);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0; font-family:var(--font-body);
+    background-color:var(--bg);
+    color:var(--text); min-height:100vh;
+    position:relative;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(20,184,166,.16) 0%, transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(168,85,247,.19) 0%, transparent 50%),
+      radial-gradient(circle at 20% 85%, rgba(244,63,94,.12) 0%, transparent 45%),
+      radial-gradient(circle at 80% 80%, rgba(245,158,11,.13) 0%, transparent 45%);
+    filter:blur(40px);
+  }
+  .wrap{max-width:680px;margin:0 auto;padding:20px 16px 70px;position:relative;z-index:1;}
+  h1,h2,h3{font-family:var(--font-display);font-weight:800;margin:0;letter-spacing:-.01em;}
+  a{color:inherit;}
+  button, input, select{font-family:var(--font-body);}
+  button{-webkit-appearance:none;appearance:none;}
 
+  header.top{
+    margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:18px 24px; background:var(--card-bg); backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+    border:1px solid var(--border); border-radius:24px; box-shadow:0 20px 40px rgba(0,0,0,.4);
+  }
+  .eyebrow{
+    font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;
+    background:linear-gradient(90deg,var(--teal),var(--purple));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  }
+  header.top h1{font-size:clamp(20px,5.5vw,25px);line-height:1.15;font-weight:800;}
+  .stars-badge{
+    display:inline-flex;align-items:center;gap:7px;flex-shrink:0;
+    background:rgba(245,158,11,.13);
+    border:1px solid rgba(245,158,11,.35); padding:9px 16px; border-radius:99px;
+    font-weight:800; color:var(--amber); font-size:14.5px;
+    box-shadow:0 0 18px rgba(245,158,11,.22);
+    transition:transform .2s cubic-bezier(.34,1.56,.64,1);
+  }
+  .stars-badge .icon{font-size:16px;}
+
+  nav.tabs{
+    display:flex; gap:8px; overflow-x:auto; padding:6px; margin-bottom:24px;
+    scrollbar-width:none;
+    background:var(--card-bg);
+    backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+    border:1px solid var(--border); border-radius:20px;
+  }
+  nav.tabs::-webkit-scrollbar{display:none;}
+  .tab-btn{
+    flex-shrink:0; background:transparent; border:none;
+    color:var(--muted); padding:10px 18px; border-radius:14px; font-size:13.5px; font-weight:700;
+    cursor:pointer; white-space:nowrap; font-family:var(--font-body); transition:all .25s ease;
+  }
+  .tab-btn.active{background:linear-gradient(135deg,var(--teal),var(--purple));color:#fff;box-shadow:var(--shadow-glow);}
+  .tab-btn:hover:not(.active){background:rgba(255,255,255,.06);color:var(--text);}
+  .tab-btn:active{transform:scale(.94);}
+
+  .panel{display:none;}
+  .panel.active{display:block;animation:fadeIn .3s cubic-bezier(.16,1,.3,1);}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+  @keyframes pop{0%{transform:scale(1);}40%{transform:scale(1.18);}100%{transform:scale(1);}}
+  .pop{animation:pop .35s ease;}
+
+  .card-box{
+    background:var(--card-bg);
+    backdrop-filter:var(--glass-blur); -webkit-backdrop-filter:var(--glass-blur);
+    border:1px solid var(--border);
+    border-radius:24px; padding:24px; margin-bottom:16px;
+    position:relative; overflow:hidden;
+    transition:all .3s cubic-bezier(.16,1,.3,1);
+  }
+  .card-box:hover{background:var(--card-hover);border-color:var(--border-glow);transform:translateY(-2px);box-shadow:0 15px 35px -10px rgba(0,0,0,.5);}
+  .card-box:active{transform:scale(.995);}
+  .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .axis-tag{
+    display:inline-block; font-size:11px; font-weight:800; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--card-accent, var(--teal)); margin-bottom:8px;
+  }
+  .card-box h3{font-size:20px;margin-bottom:8px;color:#fff;}
+  .hook{color:var(--muted);font-size:13px;margin-bottom:10px;font-style:italic;}
+  .summary{font-size:14px;line-height:1.6;color:var(--muted);margin-bottom:12px;}
+  .summary.collapsed{display:none;}
+  .toggle-link{
+    background:none;border:none;color:var(--teal);font-weight:700;font-size:13px;
+    cursor:pointer;padding:0;font-family:var(--font-body);
+    display:inline-flex;align-items:center;gap:5px;
+  }
+  .chev{display:inline-flex;transition:transform .2s ease;}
+  .chev.open{transform:rotate(90deg);}
+  ul.keypoints{margin:10px 0 0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#d7dbe3;}
+  .vocab-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  .vocab-chip{
+    display:inline-flex;align-items:center;
+    background:rgba(255,255,255,.04); border:1px solid var(--border);
+    color:var(--teal); font-size:12.5px; padding:6px 12px; border-radius:99px;
+  }
+  .vocab-chip b{color:#fff;}
+
+  /* Favoris + bouton "lu" */
+  .fav-btn{background:none;border:none;font-size:22px;cursor:pointer;color:rgba(255,255,255,.22);line-height:1;padding:2px;flex-shrink:0;transition:transform .15s;}
+  .fav-btn.active{color:var(--amber);}
+  .fav-btn:active{transform:scale(1.3);}
+  .read-btn{
+    margin-top:12px;background:linear-gradient(135deg,var(--teal),#0d9488);
+    border:none;
+    color:#fff;padding:12px 20px;border-radius:14px;font-size:13.5px;font-weight:700;cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;transition:all .2s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 4px 15px rgba(20,184,166,.3);
+  }
+  .read-btn:hover{transform:scale(1.03);box-shadow:0 8px 25px rgba(20,184,166,.5);}
+  .read-btn:active{transform:scale(.97);}
+  .read-btn.done{opacity:.6;cursor:default;background:rgba(255,255,255,.08);color:var(--muted);box-shadow:none;}
+
+  /* Grammaire */
+  .gram-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px;}
+  .gram-table th,.gram-table td{padding:8px;text-align:left;border-bottom:1px solid rgba(255,255,255,.08);}
+  .gram-table th{color:var(--amber);font-weight:700;}
+  .pill-list{display:flex;flex-direction:column;gap:7px;margin:8px 0;}
+  .pill{background:rgba(20,184,166,.12);border:1px solid rgba(20,184,166,.3);border-radius:14px;padding:10px 13px;font-size:13px;}
+  .pill b{color:var(--teal);}
+  .example-line{font-size:13px;color:#d7dbe3;padding:7px 0;border-left:3px solid var(--purple);padding-left:10px;margin:6px 0;}
+
+  /* Exercices */
+  .ex-picker{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+  .ex-progress-wrap{height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin-bottom:16px;}
+  .ex-progress-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--purple));width:0%;transition:width .3s ease;}
+  .ex-item{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:16px;padding:13px 15px;margin-bottom:10px;}
+  .ex-sentence{font-size:14.5px;margin-bottom:8px;}
+  .ex-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .ex-input{background:rgba(0,0,0,.3);border:1px solid var(--border);color:#fff;padding:10px 13px;border-radius:12px;font-size:13.5px;width:150px;outline:none;transition:border-color .2s;}
+  .ex-input:focus{border-color:var(--teal);}
+  .ex-btn{background:linear-gradient(135deg,var(--teal),#0d9488);border:none;color:#fff;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(20,184,166,.35);transition:all .2s cubic-bezier(.34,1.56,.64,1);}
+  .ex-btn:hover{transform:scale(1.03);}
+  .ex-btn:active{transform:scale(.95);}
+  .ex-choice{background:rgba(255,255,255,.05);border:1px solid var(--border);color:#fff;padding:8px 15px;border-radius:12px;font-size:13.5px;cursor:pointer;transition:transform .12s;}
+  .ex-choice:active{transform:scale(.94);}
+  .ex-choice.correct{background:rgba(16,185,129,.22);border-color:var(--green);}
+  .ex-choice.wrong{background:rgba(244,63,94,.22);border-color:var(--red);}
+  .ex-feedback{font-size:13px;margin-top:6px;font-weight:700;display:flex;align-items:center;gap:5px;}
+  .ex-feedback.ok{color:var(--green);}
+  .ex-feedback.ko{color:var(--red);}
+
+  .quiz-box{text-align:center;padding:10px 4px;}
+  .quiz-word{font-family:var(--font-display);font-size:26px;font-weight:800;margin:14px 0;}
+  .quiz-options{display:flex;flex-direction:column;gap:8px;margin:14px 0;}
+  .quiz-opt{background:rgba(255,255,255,.05);border:1px solid var(--border);color:#fff;padding:12px 14px;border-radius:14px;font-size:14px;cursor:pointer;text-align:left;transition:transform .12s;display:flex;align-items:center;gap:11px;}
+  .quiz-opt:active{transform:scale(.97);}
+  .quiz-badge{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);}
+  .quiz-opt.correct{background:rgba(16,185,129,.22);border-color:var(--green);}
+  .quiz-opt.correct .quiz-badge{background:var(--green);color:#fff;}
+  .quiz-opt.wrong{background:rgba(244,63,94,.22);border-color:var(--red);}
+  .quiz-opt.wrong .quiz-badge{background:var(--red);color:#fff;}
+  .quiz-progress{font-size:12.5px;color:var(--muted);margin-bottom:6px;}
+  .quiz-score{font-size:14px;color:var(--amber);font-weight:700;}
+  .quiz-reward{font-size:13px;color:var(--amber);margin-top:6px;}
+
+  /* Textes */
+  .glossary-grid{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0;}
+  .glossary-chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;background:rgba(255,255,255,.04);border:1px solid var(--border);padding:5px 10px 5px 8px;border-radius:99px;color:var(--muted);}
+  .glossary-chip::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+  .texto-body{font-size:14.5px;line-height:1.75;color:#e5e7eb;white-space:pre-line;}
+  .qa-item{margin:10px 0;padding:12px;background:rgba(255,255,255,.03);border-radius:14px;}
+  .qa-q{font-size:13.5px;font-weight:700;margin-bottom:4px;}
+  .qa-a{font-size:13px;color:var(--muted);display:none;padding-top:4px;border-top:1px dashed rgba(255,255,255,.12);margin-top:6px;}
+  .qa-a.show{display:block;color:var(--teal);}
+
+  /* Mindmaps */
+  .mm-select{width:100%;background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--border);color:#fff;padding:12px 14px;border-radius:16px;font-size:14px;margin-bottom:16px;}
+  .mm-stage{position:relative;width:100%;aspect-ratio:1/1;max-width:420px;margin:0 auto;}
+  .mm-center{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:112px;height:112px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    font-family:var(--font-display);font-weight:800;font-size:13.5px;color:#fff;
+    white-space:pre-line;line-height:1.2;padding:8px;z-index:3;
+    box-shadow:0 14px 30px -8px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.25);
+  }
+  .mm-node{
+    position:absolute;width:148px;background:rgba(17,24,39,.7);
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border-radius:16px;padding:10px 12px;font-size:11.5px;line-height:1.5;z-index:2;
+    transform:translate(-50%,-50%); cursor:pointer; transition:background .15s;
+    box-shadow:0 8px 20px -12px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .mm-node:hover{background:rgba(31,41,55,.85);}
+  .mm-node b{display:block;font-size:12.5px;margin-bottom:3px;}
+  .mm-node .mm-sub{display:none;color:#d7dbe3;}
+  .mm-node.open .mm-sub{display:block;}
+  .mm-node .mm-hint{font-size:10px;color:var(--muted);}
+  svg.mm-lines{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;}
+  .mm-legend{text-align:center;font-size:12px;color:var(--muted);margin-top:12px;}
+
+  /* Historia */
+  .tl-item{position:relative;padding-left:24px;padding-bottom:20px;}
+  .tl-item::before{content:'';position:absolute;left:2px;top:16px;bottom:0;width:2px;background:rgba(255,255,255,.1);}
+  .tl-item:last-child::before{display:none;}
+  .tl-dot{position:absolute;left:-4px;top:3px;width:13px;height:13px;border-radius:50%;border:2px solid var(--bg);box-shadow:0 0 0 3px rgba(255,255,255,.05);}
+  .tl-period{font-size:12px;font-weight:800;letter-spacing:.02em;}
+  .tl-title{font-family:var(--font-display);font-size:16px;font-weight:800;margin:2px 0 6px;color:#fff;}
+  .tl-text{font-size:13.5px;line-height:1.6;color:var(--muted);}
+
+  /* Flashcards */
+  .fc-stats-row{display:flex;gap:10px;margin:6px 0 14px;flex-wrap:wrap;}
+  .fc-stat{background:var(--glass-bg-soft);border:1px solid var(--border);border-radius:16px;padding:10px 13px;flex:1;min-width:80px;}
+  .fc-stat .num{font-family:var(--font-display);font-size:20px;font-weight:800;display:block;}
+  .fc-stat .lbl{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;}
+  .fc-stat.known .num{color:var(--green);} .fc-stat.review .num{color:var(--rose);} .fc-stat.total .num{color:var(--amber);} .fc-stat.fav .num{color:var(--purple);}
+  .fc-controls{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+  .fc-select,.fc-search{background:var(--card-bg);border:1px solid var(--border);color:#fff;padding:9px 13px;border-radius:14px;font-size:13px;}
+  .fc-search{flex:1;min-width:130px;}
+  .fc-icon-btn{background:var(--card-bg);border:1px solid var(--border);color:#fff;padding:9px 14px;border-radius:14px;font-size:13px;cursor:pointer;font-weight:600;transition:transform .12s;display:inline-flex;align-items:center;gap:6px;}
+  .fc-icon-btn:active{transform:scale(.94);}
+  .fc-icon-btn.active{background:linear-gradient(135deg,var(--teal),var(--purple));border-color:transparent;}
+  .fc-card-stage{perspective:1400px;margin:6px 0 10px;}
+  .fc-card{position:relative;height:270px;border-radius:26px;cursor:pointer;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.2,.8,.2,1);}
+  .fc-card:active{transform:scale(.985);}
+  .fc-card.flipped:active{transform:rotateY(180deg) scale(.985);}
+  .fc-face{position:absolute;inset:0;border-radius:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;backface-visibility:hidden;padding:20px;text-align:center;border:1px solid var(--border);}
+  .fc-face.front{background:linear-gradient(150deg,#1f2937,#111827);color:#fff;box-shadow:0 22px 50px -18px rgba(0,0,0,.6);}
+  .fc-face.back{background:linear-gradient(150deg,#0f766e,#115e59);color:#fff;transform:rotateY(180deg);box-shadow:0 22px 50px -18px rgba(0,0,0,.6);}
+  .fc-cat-tag{position:absolute;top:14px;left:16px;font-size:10.5px;font-weight:700;text-transform:uppercase;padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.08);color:var(--muted);}
+  .fc-face.back .fc-cat-tag{background:rgba(255,255,255,.16);color:#fff;}
+  .fc-rank-tag{position:absolute;top:16px;right:44px;font-size:11px;color:var(--muted);font-weight:700;}
+  .fc-face.back .fc-rank-tag{color:rgba(255,255,255,.7);}
+  .fc-fav-toggle{position:absolute;top:8px;right:8px;background:none;border:none;font-size:21px;cursor:pointer;color:rgba(255,255,255,.25);line-height:1;padding:4px;transition:transform .15s;}
+  .fc-fav-toggle:active{transform:scale(1.3);}
+  .fc-fav-toggle.active{color:var(--amber);}
+  .fc-face.back .fc-fav-toggle{color:rgba(255,255,255,.35);}
+  .fc-face.back .fc-fav-toggle.active{color:var(--amber);}
+
+  .fc-word-main{font-family:var(--font-display);font-weight:800;font-size:clamp(25px,6vw,34px);line-height:1.15;}
+  .fc-flip-hint{margin-top:10px;font-size:11px;color:var(--muted);}
+  .fc-diff-row{display:flex;gap:4px;margin-top:12px;}
+  .fc-diff-star{display:inline-flex;cursor:pointer;color:rgba(255,255,255,.2);transition:transform .12s;}
+  .fc-diff-star:active{transform:scale(1.3);}
+  .fc-diff-star.filled{color:var(--rose);}
+  .fc-face.back .fc-diff-star{color:rgba(255,255,255,.3);}
+  .fc-face.back .fc-diff-star.filled{color:var(--amber);}
+  .fc-action-row{display:flex;gap:10px;margin-bottom:18px;}
+  .fc-action-btn{flex:1;padding:14px;border-radius:16px;border:none;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s cubic-bezier(.34,1.56,.64,1);display:inline-flex;align-items:center;justify-content:center;gap:7px;}
+  .btn-icon{display:inline-flex;align-items:center;}
+  .fc-action-btn:hover{transform:scale(1.02);}
+  .fc-action-btn:active{transform:scale(.95);}
+  .fc-action-btn.review{background:rgba(244,63,94,.15);color:var(--rose);border:1px solid var(--rose);}
+  .fc-action-btn.known{background:rgba(16,185,129,.15);color:var(--green);border:1px solid var(--green);}
+  .fc-nav-row{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .fc-nav-btn{background:var(--card-bg);border:1px solid var(--border);color:#fff;width:46px;height:46px;border-radius:50%;font-size:17px;cursor:pointer;flex-shrink:0;transition:transform .12s;}
+  .fc-nav-btn:active{transform:scale(.9);}
+  .fc-pos-lbl{font-size:12.5px;color:var(--muted);text-align:center;flex:1;}
+
+  /* Parcours façon Duolingo */
+  .unit-block{margin-bottom:32px;}
+  .unit-banner{
+    border-radius:22px; padding:16px 18px; margin-bottom:20px;
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    background:linear-gradient(135deg, var(--unit-color, var(--teal)), var(--unit-color-dark, #0d9488));
+    box-shadow:0 14px 30px -16px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  .unit-banner h3{color:#fff;font-size:16px;}
+  .unit-banner .unit-sub{font-size:11.5px;color:rgba(255,255,255,.78);font-weight:700;}
+  .unit-banner .unit-count{font-size:13px;font-weight:800;color:#fff;background:rgba(0,0,0,.22);padding:5px 12px;border-radius:99px;}
+  .unit-locked-overlay{opacity:.42;filter:grayscale(55%);}
+  .path-track{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 0 10px;}
+  .path-row{display:flex;align-items:center;width:100%;max-width:320px;}
+  .path-row.left{justify-content:flex-start;}
+  .path-row.right{justify-content:flex-end;}
+  .path-row.center{justify-content:center;}
+  .step-node{
+    width:66px;height:66px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:24px; cursor:pointer; position:relative; flex-shrink:0;
+    background:rgba(255,255,255,.06); border:1px solid var(--border);
+    box-shadow:0 10px 22px -12px rgba(0,0,0,.7);
+    transition:transform .15s;
+  }
+  .step-node:active{transform:scale(.9);}
+  .step-node.done{background:linear-gradient(155deg, var(--step-color, var(--green)), var(--step-color, var(--green))cc); border-color:transparent; box-shadow:0 10px 22px -10px var(--step-color, var(--green)), inset 0 1px 0 rgba(255,255,255,.3);}
+  .step-node.current{background:rgba(255,255,255,.1); border-color:var(--step-color, var(--amber)); border-width:2px; animation:pulseNode 1.8s infinite;}
+  .step-node.locked{background:rgba(255,255,255,.03); border-color:rgba(255,255,255,.06); cursor:default; box-shadow:none;}
+  .step-node.locked .step-icon{opacity:.3;}
+  @keyframes pulseNode{0%{box-shadow:0 0 0 0 rgba(245,158,11,.5);}70%{box-shadow:0 0 0 14px rgba(245,158,11,0);}100%{box-shadow:0 0 0 0 rgba(245,158,11,0);}}
+  .step-label{font-size:10.5px;text-align:center;color:var(--muted);margin-top:4px;max-width:72px;font-weight:700;}
+  .step-node.done + .step-label{color:var(--green);}
+  .step-wrap{display:flex;flex-direction:column;align-items:center;}
+  .step-lock-icon{position:absolute;bottom:-2px;right:-2px;font-size:13px;background:var(--bg);color:var(--muted);border-radius:50%;padding:3px;box-shadow:0 2px 6px rgba(0,0,0,.5);}
+  .step-check{position:absolute;bottom:-2px;right:-2px;font-size:14px;background:var(--bg);border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.5);}
+  .path-connector{width:3px;height:24px;border-radius:3px;background:repeating-linear-gradient(to bottom, rgba(255,255,255,.22) 0 4px, transparent 4px 8px);}
+
+  /* Dashboard accueil */
+  .dash-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px;}
+  .dash-item{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:18px;padding:16px;}
+  .dash-item .num{font-family:var(--font-display);font-size:24px;font-weight:800;}
+  .dash-item .lbl{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.02em;margin-top:4px;}
+
+  .stat-bar-row{margin-bottom:12px;}
+  .stat-bar-label{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px;}
+  .stat-bar-track{height:9px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;}
+  .stat-bar-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--purple));border-radius:99px;transition:width .4s ease;}
+
+  .muted{color:var(--muted);font-size:13px;}
+  .section-note{font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Docteur height · Español 1ère</div>
+      <h1>L'app complète</h1>
+    </div>
+    <div class="stars-badge"><span class="icon" id="starsIcon">⭐</span><span id="starsBadge">0</span></div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="accueil">🏠 Accueil</button>
+    <button class="tab-btn" data-tab="stats">📊 Stats</button>
+    <button class="tab-btn" data-tab="parcours">🧭 Parcours</button>
+    <button class="tab-btn" data-tab="lecons">📖 Leçons</button>
+    <button class="tab-btn" data-tab="grammaire">📝 Grammaire</button>
+    <button class="tab-btn" data-tab="exercices">✍️ Exercices</button>
+    <button class="tab-btn" data-tab="textes">📄 Textos</button>
+    <button class="tab-btn" data-tab="mindmaps">🗺️ Mindmaps</button>
+    <button class="tab-btn" data-tab="historia">🏛️ Historia</button>
+    <button class="tab-btn" data-tab="flashcards">🎴 Flashcards</button>
+  </nav>
+
+  <section class="panel active" id="panel-accueil">
+    <div class="card-box">
+      <h3>Bienvenue 👋</h3>
+      <p class="summary" style="display:block;">Tout ce qu'il te faut pour le bac d'espagnol de Première : les 4 axes du programme, de la grammaire ciblée, des exercices, des textes de lecture avec questions, des mindmaps, une frise historique, et 1171 mots en flashcards. Gagne des ⭐ en apprenant, marque tes favoris, note la difficulté de chaque mot.</p>
+      <div class="dash-grid" id="dashGrid"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-stats"></section>
+  <section class="panel" id="panel-parcours"></section>
+  <section class="panel" id="panel-lecons"></section>
+  <section class="panel" id="panel-grammaire"></section>
+  <section class="panel" id="panel-exercices"></section>
+  <section class="panel" id="panel-textes"></section>
+  <section class="panel" id="panel-mindmaps"></section>
+  <section class="panel" id="panel-historia"></section>
+  <section class="panel" id="panel-flashcards"></section>
+</div>
+
+<script>
+const APP = {"lessons": [{"id": "guerra-civil", "axis": "Identidades e intercambios", "title": "La Guerra Civil española (1936-1939)", "hook": "Guernica, Picasso et l'exil des républicains", "summary": "Le 18 juillet 1936, une partie de l'armée espagnole se soulève contre le gouvernement républicain légitime. Le pays se divise en deux camps pendant trois ans : les republicanos (démocrates, soutenus par l'URSS et les Brigades internationales) contre les nacionales, dirigés par le général Franco et appuyés par l'Allemagne nazie et l'Italie fasciste. Le 26 avril 1937, l'aviation allemande bombarde la ville basque de Guernica, un massacre de civils sans intérêt militaire qui inspire à Picasso son tableau le plus célèbre. La guerre se termine le 1er avril 1939 par la victoire franquiste : environ 500 000 morts et plus de 450 000 exilés, dont beaucoup passent la frontière française dans des conditions très dures (camps de concentration comme Rivesaltes). Certains républicains exilés rejoindront plus tard La Nueve, une unité de la 2e DB qui libérera Paris en 1944.", "keyPoints": ["Deux camps : republicanos (rojos) vs nacionales/sublevados (azules)", "Guernica (1937) : bombardement + tableau de Picasso, symbole universel contre la guerre", "Les Brigadas Internacionales : volontaires de plus de 50 pays venus soutenir la République", "La Retirada : l'exil massif vers la France en 1939, accueil souvent hostile", "La Nueve : les républicains espagnols qui libèrent Paris en 1944", "Grammaire associée : le pretérito indefinido (récit d'événements passés terminés)"], "vocabIds": ["un artista comprometido", "estallar", "un bando", "alistarse", "una bandera", "desaparecido", "una fosa común", "rendir tributo", "el compromiso", "una acogida"], "color": "coral"}, {"id": "migracion", "axis": "Identidades e intercambios", "title": "Fronteras, migración et mondialisation", "hook": "L'axe officiel du bac : identités plurielles et mobilité", "summary": "Au-delà de l'histoire, l'axe « Identidades e intercambios » interroge la mobilité contemporaine : pourquoi et comment on quitte son pays, comment on est accueilli, et ce que cela change à l'identité. Le programme distingue plusieurs pistes : la mondialisation et le dynamisme des échanges (globalización, dinamismo y movilidad), l'impact des migrations sur les sociétés de départ et d'accueil, les frontières invisibles (sociales, économiques) qui séparent parfois plus que les frontières physiques, et la construction d'identités plurielles chez les personnes qui vivent entre deux cultures. L'Amérique latine et l'Espagne illustrent les deux faces du phénomène : terres d'émigration historique, mais aussi terres d'accueil pour d'autres flux migratoires.", "keyPoints": ["Mundialización : interdépendance croissante entre pays, marchés et cultures", "Fronteras visibles (murs, contrôles) vs fronteras invisibles (discrimination, exclusion sociale)", "Migrante / inmigrante / emigrante : nuance selon le point de vue (pays de départ ou d'arrivée)", "Las remesas : argent envoyé par les migrants à leur famille restée au pays", "Identidad plural : se construire entre deux cultures sans renier ses raíces", "Vocabulaire clé pour le Grand Oral et l'expression écrite sur ce thème"], "vocabIds": ["la mundialización", "la frontera", "el inmigrante", "las remesas", "la integración", "el arraigo", "el mestizaje", "la convivencia", "las fronteras invisibles", "identidades plurales"], "color": "teal"}, {"id": "mundo-virtual", "axis": "Citoyenneté et mondes virtuels", "title": "Ciudadanía y mundos virtuales", "hook": "Fundación Telefónica, réseaux sociaux et fake news", "summary": "Cet axe interroge la façon dont le numérique transforme la relation entre le citoyen et le pouvoir. D'un côté, le monde virtuel ouvre des possibilités : la Fundación Telefónica finance des projets d'inclusion numérique (comme l'école 42Madrid, gratuite et sans professeurs) et aide les communautés indigènes d'Amérique latine à se faire entendre grâce aux radios communautaires et aux réseaux sociaux. Des campagnes citoyennes comme « Vota por favor » utilisent Instagram pour lutter contre l'abstention électorale. De l'autre côté, le numérique comporte des risques : addiction au portable, anxiété, dépression, et une circulation massive de fake news qui rend difficile de distinguer le vrai du faux. Des associations comme Pantallas Amigas travaillent à la prévention et à l'éducation aux médias.", "keyPoints": ["La brecha digital : la fracture numérique entre ceux qui ont accès à la technologie et les autres", "Empoderamiento : le numérique comme outil d'autonomisation pour les communautés marginalisées", "Risques identifiés : adicción al móvil, ansiedad, pérdida de vida privada", "Fake news : nécessité de vérifier les sources, rôle de l'éducation aux médias", "Grammaire associée : por vs para (cause, but, moyen, date)", "Vocabulaire pour argumenter pour/contre l'usage des réseaux sociaux"], "vocabIds": ["la brecha digital", "el empoderamiento", "las redes sociales", "difundir", "las noticias falsas", "la libertad de expresión", "comprometer", "fomentar", "un perfil", "asequible"], "color": "marigold"}, {"id": "arte-mujeres", "axis": "Art et pouvoir / Fiction et réalité", "title": "Arte, poder y ficción en femenino", "hook": "Frida Kahlo, Rosa Montero et les femmes artistes oubliées", "summary": "Cet axe croise deux questions du programme : le rapport entre art et pouvoir, et la frontière entre fiction et réalité. Rosa Montero, romancière et journaliste espagnole, défend l'idée que l'art sert à « rescatar la belleza que ha habido en el dolor » (sauver la beauté qui existait dans la douleur). Frida Kahlo peint des autoportraits comme Las dos Fridas (1939), où elle explore une identité double à travers son divorce avec Diego Rivera, jouant sur les dualités vie/mort et tradition/modernité. La photographe Ouka Leele raconte comment son compagnon lui a interdit de peindre, et comment elle a trouvé dans la photographie une autre voie d'expression. Enfin, le mouvement « Las Sinsombrero » redonne une visibilité aux femmes de la Génération de 27 (contemporaines de Lorca et Dalí), largement effacées de l'histoire officielle malgré leur importance artistique.", "keyPoints": ["Rosa Montero : l'art comme moyen de transformer la douleur en beauté", "Frida Kahlo, Las dos Fridas : autoportrait double, dualités vie/mort, tradition/modernité", "Méthode d'analyse d'un tableau : repérer → observer → analyser", "Ouka Leele : la photographie comme salida (issue) face à l'interdiction de peindre", "Las Sinsombrero : les femmes oubliées de la Generación del 27", "Grammaire associée : le gérondif (estar/seguir + gérondif)"], "vocabIds": ["rescatar", "un autorretrato", "empoderar", "un lienzo", "un testimonio", "una salida", "ilustre", "el éxito", "un pintor", "un premio"], "color": "plum"}], "grammar": [{"id": "preterito", "title": "El pretérito indefinido", "usage": "Exprime une action passée, datée et terminée, sans lien avec le présent. Il est beaucoup plus utilisé en espagnol qu'en français (où le passé composé domine à l'oral). C'est le temps du récit historique : idéal pour raconter la Guerre civile, une biographie ou une anecdote.", "regularTable": {"AR (hablar)": ["hablé", "hablaste", "habló", "hablamos", "hablasteis", "hablaron"], "ER (comer)": ["comí", "comiste", "comió", "comimos", "comisteis", "comieron"], "IR (vivir)": ["viví", "viviste", "vivió", "vivimos", "vivisteis", "vivieron"]}, "irregulars": [{"inf": "ser / ir", "forms": "fui, fuiste, fue, fuimos, fuisteis, fueron", "note": "Mêmes formes pour les deux verbes — seul le contexte permet de distinguer"}, {"inf": "tener", "forms": "tuve, tuviste, tuvo, tuvimos, tuvisteis, tuvieron"}, {"inf": "hacer", "forms": "hice, hiciste, hizo, hicimos, hicisteis, hicieron"}, {"inf": "decir", "forms": "dije, dijiste, dijo, dijimos, dijisteis, dijeron"}, {"inf": "poder", "forms": "pude, pudiste, pudo, pudimos, pudisteis, pudieron"}, {"inf": "dar", "forms": "di, diste, dio, dimos, disteis, dieron"}], "example": "La guerra civil española duró tres años y dividió el país en dos bandos."}, {"id": "porpara", "title": "Por vs Para", "usage": "Les deux prépositions se traduisent souvent par « pour » en français, mais elles ne sont jamais interchangeables.", "rules": [{"prep": "PARA", "uses": ["un point de vue (para mí...)", "un but / une destination (sirve para...)", "une date précise (para Navidad)"]}, {"prep": "POR", "uses": ["une cause (por + raison)", "un moyen (por las redes sociales)", "« de la part de » (por parte de)"]}], "examples": ["Para la Fundación Telefónica, lo más importante es la inclusión social. (point de vue)", "Esta escuela sirve para dar oportunidades a todos. (but)", "Me juzgan por no tener acceso a las nuevas tecnologías. (cause)", "Difunden iniciativas por las redes sociales. (moyen)"]}, {"id": "gerundio", "title": "El gerundio", "usage": "Le gérondif décrit une action en train de se dérouler. Formation : verbes en -AR → -ando ; verbes en -ER/-IR → -iendo.", "constructions": [{"pattern": "estar + gérondif", "meaning": "être en train de", "example": "Una novela siempre está hablando de algo tuyo muy profundo."}, {"pattern": "seguir + gérondif", "meaning": "continuer à", "example": "El mundo del arte sigue siendo un mundo de hombres."}, {"pattern": "gérondif seul", "meaning": "en train de / en + participe présent", "example": "Evoca, riendo, un reto que se lanzó."}], "irregularGerunds": [{"inf": "decir", "ger": "diciendo"}, {"inf": "dormir", "ger": "durmiendo"}, {"inf": "pedir", "ger": "pidiendo"}, {"inf": "leer", "ger": "leyendo"}, {"inf": "ir", "ger": "yendo"}, {"inf": "poder", "ger": "pudiendo"}]}, {"id": "serestar", "title": "Ser vs Estar (rappel)", "usage": "SER = identité, caractéristique permanente (nationalité, profession, description). ESTAR = état, situation temporaire ou localisation.", "rules": [{"prep": "SER", "uses": ["identité / origine (soy español)", "profession (es pintor)", "caractère permanent (es alto)", "date / heure (es la una)"]}, {"prep": "ESTAR", "uses": ["état passager (está cansado)", "lieu (Madrid está en España)", "estar + gérondif (action en cours)"]}], "examples": ["Pablo Picasso era pintor y escultor. (identité permanente)", "El cuadro está en el Museo Reina Sofía. (localisation)", "Los republicanos estaban preparados para defenderse. (état à ce moment)"]}], "texts": [{"id": "texto-memoria", "axis": "Identidades e intercambios", "title": "El cuaderno del abuelo", "level": "B1-B2", "body": "Cuando mi abuelo murió, encontramos en su armario un cuaderno escrito en 1939. Nunca nos había hablado de la guerra civil, ni de su exilio a Francia. En las primeras páginas, contaba cómo tuvo que cruzar la frontera a pie, con miles de personas, sin saber qué encontraría al otro lado. Escribía que los soldados franceses los trataron con desconfianza al principio, y que pasó varias semanas en un campo cerca de la playa, durmiendo sobre la arena. Más tarde, se alistó voluntariamente para luchar contra los nazis, junto a otros republicanos españoles. Decía que nunca dejó de sentirse español, aunque vivió el resto de su vida en Francia. Al final del cuaderno, había una frase subrayada: «La identidad no se pierde cuando se cruza una frontera, se transforma». Leyendo estas páginas, entendí por qué mi abuelo hablaba siempre dos idiomas en casa, y por qué nunca quiso volver a España, ni siquiera de visita.", "glossary": [["el cuaderno", "le cahier"], ["cruzar", "traverser"], ["la desconfianza", "la méfiance"], ["alistarse", "s'engager"], ["subrayado", "souligné"], ["la frontera", "la frontière"]], "questions": [{"q": "¿Qué encontró la familia en el armario del abuelo?", "a": "Un cuaderno escrito en 1939."}, {"q": "¿Cómo cruzó la frontera el abuelo?", "a": "A pie, con miles de personas."}, {"q": "¿Cómo lo trataron los soldados franceses al principio?", "a": "Con desconfianza."}, {"q": "¿Qué hizo el abuelo después de llegar a Francia?", "a": "Se alistó voluntariamente para luchar contra los nazis."}, {"q": "¿Qué frase subrayada resume el mensaje del cuaderno?", "a": "«La identidad no se pierde cuando se cruza una frontera, se transforma»."}], "color": "coral"}, {"id": "texto-migrante", "axis": "Identidades e intercambios", "title": "Tres maletas", "level": "B1-B2", "body": "Marisol tenía diecinueve años cuando decidió dejar su pueblo en Honduras. Llevaba solo tres maletas: una con ropa, otra con fotos de su familia, y la última, vacía, «para lo que vaya encontrando por el camino», decía riendo, aunque tenía miedo. El viaje duró casi un mes. Atravesó Guatemala y México escondida en camiones, evitando los controles policiales, y durmió muchas noches en albergues para migrantes. Lo que más le costó no fue el cansancio, sino la incertidumbre: no saber si llegaría, no saber si la aceptarían. Cuando finalmente cruzó la frontera, un voluntario de una asociación le ofreció comida caliente y un lugar donde dormir. «Aquí nadie te pregunta de dónde vienes primero», le dijo. «Primero te preguntan cómo te llamas». Hoy, dos años después, Marisol envía cada mes una parte de su sueldo a su madre. Dice que sigue siendo hondureña, pero que también se siente, un poco, de este nuevo lugar.", "glossary": [["la maleta", "la valise"], ["atravesar", "traverser"], ["el albergue", "le foyer d'accueil"], ["la incertidumbre", "l'incertitude"], ["el sueldo", "le salaire"], ["el camión", "le camion"]], "questions": [{"q": "¿Cuántas maletas llevaba Marisol y qué había en ellas?", "a": "Tres: ropa, fotos de familia, y una vacía para el camino."}, {"q": "¿Cuánto duró el viaje?", "a": "Casi un mes."}, {"q": "¿Qué fue lo más difícil del viaje según el texto?", "a": "La incertidumbre, no el cansancio."}, {"q": "¿Qué le dice el voluntario al llegar?", "a": "Que primero le preguntan cómo se llama, no de dónde viene."}, {"q": "¿Qué hace Marisol hoy con parte de su sueldo?", "a": "Lo envía a su madre (remesas)."}], "color": "teal"}, {"id": "texto-redes", "axis": "Ciudadanía y mundos virtuales", "title": "Veinticuatro horas sin móvil", "level": "B1-B2", "body": "Para un trabajo de clase, Diego tuvo que pasar veinticuatro horas sin usar el móvil. Al principio, pensó que sería fácil. Después de una hora, ya sentía la tentación de revisar sus mensajes. Se dio cuenta de que consultaba el teléfono más de cien veces al día, muchas veces sin ninguna razón concreta. Durante el experimento, tuvo más tiempo para hablar con su familia durante la cena, y hasta terminó un libro que había empezado hace meses. También notó algo curioso: sin redes sociales, dejó de compararse constantemente con la vida de otras personas. Al final del día, escribió en su diario: «Las redes sociales no son malas en sí mismas, pero usarlas sin límite sí puede serlo». Ahora Diego intenta dejar el móvil en otra habitación durante las comidas, y ha desactivado las notificaciones de todas sus aplicaciones, excepto las de mensajería. Su profesora dice que este tipo de experimento ayuda a los jóvenes a convertirse en ciudadanos digitales más conscientes.", "glossary": [["revisar", "vérifier"], ["darse cuenta de", "se rendre compte de"], ["compararse", "se comparer"], ["desactivar", "désactiver"], ["consciente", "conscient"], ["la tentación", "la tentation"]], "questions": [{"q": "¿Cuál era el desafío de Diego?", "a": "Pasar 24 horas sin usar el móvil."}, {"q": "¿Cuántas veces consultaba normalmente su teléfono?", "a": "Más de cien veces al día."}, {"q": "¿Qué pudo hacer gracias al experimento?", "a": "Hablar más con su familia y terminar un libro."}, {"q": "¿Qué dejó de hacer sin redes sociales?", "a": "Compararse con la vida de otras personas."}, {"q": "¿Qué cambio hizo Diego después del experimento?", "a": "Deja el móvil en otra habitación durante las comidas y desactivó notificaciones."}], "color": "marigold"}, {"id": "texto-frida", "axis": "Arte, poder y ficción en femenino", "title": "La sala azul", "level": "B1-B2", "body": "En el museo, una sala entera estaba dedicada a las mujeres pintoras del siglo XX. Elena, estudiante de arte, nunca había oído hablar de la mayoría de ellas. «¿Por qué no las estudiamos en clase?», le preguntó a la guía. La guía sonrió, como si esperara la pregunta. «Porque durante mucho tiempo, la historia del arte fue escrita casi solo por hombres, sobre hombres», respondió. Frente a un autorretrato, Elena se detuvo mucho tiempo. La pintora se había representado con una expresión seria, casi de desafío, rodeada de símbolos que parecían contar una historia de dolor y de fuerza al mismo tiempo. «Cada detalle tiene un sentido», explicó la guía. «Nada está puesto por casualidad». Al salir del museo, Elena decidió empezar un cuaderno donde anotaría, a partir de ahora, el nombre de cada artista mujer que descubriera. No quería que esas historias volvieran a desaparecer. «El arte también es una forma de poder», pensó, «el poder de ser recordada».", "glossary": [["la guía", "la guide"], ["el desafío", "le défi"], ["rodeado", "entouré"], ["la casualidad", "le hasard"], ["anotar", "noter"], ["desaparecer", "disparaître"]], "questions": [{"q": "¿A qué está dedicada la sala del museo?", "a": "A las mujeres pintoras del siglo XX."}, {"q": "¿Por qué, según la guía, no se estudian estas artistas en clase?", "a": "Porque la historia del arte fue escrita casi solo por hombres."}, {"q": "¿Cómo está representada la pintora en el autorretrato?", "a": "Con una expresión seria, casi de desafío."}, {"q": "¿Qué decide hacer Elena al salir del museo?", "a": "Empezar un cuaderno con los nombres de artistas mujeres."}, {"q": "¿Cómo define Elena el arte al final del texto?", "a": "Como una forma de poder, el poder de ser recordada."}], "color": "plum"}], "mindmaps": [{"id": "mm-guerra", "title": "La Guerra Civil española", "center": "Guerra Civil\n1936-1939", "branches": [{"label": "Los dos bandos", "items": ["Republicanos (rojos)", "Nacionales/Franco (azules)", "URSS vs Alemania/Italia"]}, {"label": "Eventos clave", "items": ["18 julio 1936: sublevación", "26 abril 1937: Guernica", "1 abril 1939: fin de la guerra"]}, {"label": "Arte y memoria", "items": ["Picasso, Guernica", "Museo Reina Sofía", "Fosas comunes"]}, {"label": "El exilio", "items": ["La Retirada (1939)", "Campos en Francia", "La Nueve (libera París, 1944)"]}, {"label": "Consecuencias", "items": ["~500 000 muertos", "+450 000 exiliados", "40 años de dictadura"]}], "color": "coral"}, {"id": "mm-identidad", "title": "Identidades e intercambios", "center": "Identidad\ny movilidad", "branches": [{"label": "Mundialización", "items": ["Interdependencia global", "Dinamismo económico", "Fronteras que se abren/cierran"]}, {"label": "Migración", "items": ["Migrante/inmigrante/emigrante", "Las remesas", "Rutas y peligros"]}, {"label": "Fronteras", "items": ["Físicas (muros, controles)", "Invisibles (discriminación)", "Simbólicas (culturales)"]}, {"label": "Identidad plural", "items": ["Raíces vs integración", "Mestizaje", "Convivencia"]}], "color": "teal"}, {"id": "mm-virtual", "title": "Ciudadanía y mundos virtuales", "center": "Mundo\nvirtual", "branches": [{"label": "Oportunidades", "items": ["Fundación Telefónica", "42Madrid (escuela gratis)", "Voz para comunidades indígenas"]}, {"label": "Riesgos", "items": ["Adicción al móvil", "Ansiedad, depresión", "Pérdida de vida privada"]}, {"label": "Prevención", "items": ["Pantallas Amigas", "Educación mediática", "Detectar fake news"]}, {"label": "Vocabulario clave", "items": ["La brecha digital", "El empoderamiento", "Las redes sociales"]}], "color": "marigold"}, {"id": "mm-arte", "title": "Arte, poder y ficción en femenino", "center": "Arte y\nmujeres", "branches": [{"label": "Rosa Montero", "items": ["Escritora y periodista", "El arte rescata la belleza del dolor", "Nosotras (libro)"]}, {"label": "Frida Kahlo", "items": ["Las dos Fridas (1939)", "Dualidad vida/muerte", "Autorretrato como identidad"]}, {"label": "Ouka Leele", "items": ["De la pintura a la foto", "La fotografía como salida", "Empoderamiento femenino"]}, {"label": "Las Sinsombrero", "items": ["Mujeres de la Generación del 27", "Olvidadas por la historia", "Recuperación de su memoria"]}], "color": "plum"}], "timeline": [{"period": "711 - 1492", "title": "Al-Ándalus y la Reconquista", "text": "Invasion musulmane de la péninsule ibérique en 711, suivie de près de huit siècles de coexistence, de conflits et d'échanges culturels entre royaumes chrétiens et musulmans. La Reconquista s'achève en 1492 avec la prise de Grenade par les Rois Catholiques (Isabelle de Castille et Ferdinand d'Aragon).", "color": "marigold"}, {"period": "1492", "title": "Descubrimiento de América", "text": "La même année 1492, Christophe Colomb, financé par les Rois Catholiques, atteint les Amériques. Ce moment marque le début de la colonisation espagnole et de trois siècles d'échanges (et de violences) entre l'Espagne et le continent américain — origine directe des liens culturels et linguistiques qui unissent aujourd'hui l'Espagne et l'Amérique latine.", "color": "coral"}, {"period": "XVIe - XVIIe siècle", "title": "El Siglo de Oro", "text": "Âge d'or artistique et littéraire : Cervantès écrit Don Quichotte (1605), Vélasquez peint Las Meninas. Politiquement, l'Espagne est la première puissance mondiale grâce à son empire colonial, mais entame aussi un lent déclin économique.", "color": "plum"}, {"period": "1808 - 1898", "title": "Crises et pertes coloniales", "text": "Guerre d'indépendance contre Napoléon (1808-1814), instabilité politique tout au long du XIXe siècle, puis en 1898 l'Espagne perd ses dernières grandes colonies (Cuba, Porto Rico, Philippines) face aux États-Unis — un traumatisme national connu comme le « Desastre del 98 ».", "color": "red"}, {"period": "1931 - 1936", "title": "La Segunda República", "text": "Proclamation de la Deuxième République espagnole en 1931 : réformes sociales, laïcité, droit de vote des femmes. Une période d'espoirs démocratiques mais aussi de fortes tensions politiques entre gauche et droite, qui prépare le terrain du conflit de 1936.", "color": "teal"}, {"period": "1936 - 1939", "title": "La Guerra Civil española", "text": "Soulèvement militaire du général Franco contre la République. Trois ans de guerre fratricide, environ 500 000 morts, la destruction de Guernica, et l'exil de centaines de milliers de républicains vers la France et l'Amérique latine.", "color": "coral"}, {"period": "1939 - 1975", "title": "La dictadura franquista", "text": "Près de 40 ans de régime autoritaire sous Francisco Franco : répression politique, censure, isolement international dans les premières années, puis développement économique à partir des années 1960. Franco meurt en 1975, désignant Juan Carlos comme son successeur.", "color": "muted"}, {"period": "1975 - 1982", "title": "La Transición democrática", "text": "Passage pacifique de la dictature à la démocratie : légalisation des partis politiques, Constitution de 1978, premières élections démocratiques. Un modèle souvent cité de transition réussie, malgré une tentative de coup d'État avortée en 1981 (23-F).", "color": "teal"}, {"period": "1986 - aujourd'hui", "title": "España en Europa", "text": "Entrée dans la Communauté européenne en 1986, modernisation économique rapide, puis crise de 2008 qui relance l'émigration de jeunes Espagnols. Aujourd'hui, l'Espagne est une démocratie parlementaire pleinement intégrée à l'Union européenne, confrontée à des débats internes comme la question catalane et le devoir de mémoire historique lié à la Guerre civile.", "color": "marigold"}], "exercises": {"preterito": [{"q": "La guerra civil ______ (durar) tres años.", "a": "duró"}, {"q": "Miles de republicanos ______ (cruzar) la frontera en 1939.", "a": "cruzaron"}, {"q": "Picasso ______ (pintar) Guernica en 1937.", "a": "pintó"}, {"q": "Yo ______ (nacer) en el año 2008.", "a": "nací"}, {"q": "¿Tú ______ (ver) la exposición sobre Frida Kahlo?", "a": "viste"}, {"q": "Nosotros ______ (ir) al museo el sábado pasado.", "a": "fuimos"}, {"q": "Ella ______ (tener) que exiliarse en 1939.", "a": "tuvo"}, {"q": "Los soldados ______ (hacer) todo lo posible por resistir.", "a": "hicieron"}, {"q": "Marisol ______ (decir) que nunca olvidaría ese viaje.", "a": "dijo"}, {"q": "¿Vosotros ______ (poder) terminar el trabajo sobre la Transición?", "a": "pudisteis"}], "porpara": [{"q": "Este cuaderno es ______ mi abuelo.", "options": ["por", "para"], "a": "para"}, {"q": "Se alistó ______ defender la República.", "options": ["por", "para"], "a": "para"}, {"q": "Fue juzgado ______ sus ideas políticas.", "options": ["por", "para"], "a": "por"}, {"q": "Difunden la campaña ______ las redes sociales.", "options": ["por", "para"], "a": "por"}, {"q": "______ mí, el arte es una forma de resistencia.", "options": ["Por", "Para"], "a": "Para"}, {"q": "Caminaron ______ el desierto durante tres días.", "options": ["por", "para"], "a": "por"}, {"q": "La exposición estará abierta ______ el mes de junio.", "options": ["por", "para"], "a": "para"}, {"q": "Le dieron las gracias ______ su generosidad.", "options": ["por", "para"], "a": "por"}], "gerundio": [{"q": "hablar → estoy ______", "a": "hablando"}, {"q": "vivir → seguimos ______ en Madrid.", "a": "viviendo"}, {"q": "decir → sigue ______ la misma historia.", "a": "diciendo"}, {"q": "dormir → el bebé está ______.", "a": "durmiendo"}, {"q": "leer → estoy ______ un libro sobre la Guerra Civil.", "a": "leyendo"}, {"q": "pedir → está ______ ayuda a la asociación.", "a": "pidiendo"}, {"q": "ir → los exiliados iban ______ hacia la frontera.", "a": "yendo"}], "serestar": [{"q": "Frida Kahlo ______ una pintora mexicana muy conocida.", "options": ["era", "estaba"], "a": "era"}, {"q": "El museo ______ en el centro de Madrid.", "options": ["es", "está"], "a": "está"}, {"q": "Los republicanos ______ muy cansados después del viaje.", "options": ["eran", "estaban"], "a": "estaban"}, {"q": "Picasso ______ español, pero vivió gran parte de su vida en Francia.", "options": ["era", "estaba"], "a": "era"}, {"q": "Hoy ______ nublado en Guernica.", "options": ["es", "está"], "a": "está"}, {"q": "Esta campaña ______ organizada por jóvenes voluntarios.", "options": ["es", "está"], "a": "está"}, {"q": "Diego ______ estudiante de secundaria.", "options": ["es", "está"], "a": "es"}, {"q": "La guía ______ explicando el cuadro cuando llegamos.", "options": ["era", "estaba"], "a": "estaba"}]}, "path": [{"id": "u1", "title": "La Guerra Civil", "color": "coral", "steps": [{"type": "lesson", "ref": "guerra-civil", "label": "Leçon", "icon": "📖"}, {"type": "grammar", "ref": "preterito", "label": "Pretérito indefinido", "icon": "📝"}, {"type": "text", "ref": "texto-memoria", "label": "Lecture", "icon": "📄"}, {"type": "quiz", "ref": "Bac · Module 1 - Guerra Civil", "threshold": 7, "label": "Quiz", "icon": "🎯"}]}, {"id": "u2", "title": "Identidades e intercambios", "color": "teal", "steps": [{"type": "lesson", "ref": "migracion", "label": "Leçon", "icon": "📖"}, {"type": "grammar", "ref": "serestar", "label": "Ser / Estar", "icon": "📝"}, {"type": "text", "ref": "texto-migrante", "label": "Lecture", "icon": "📄"}, {"type": "quiz", "ref": "Bac · Identidades e intercambios", "threshold": 7, "label": "Quiz", "icon": "🎯"}]}, {"id": "u3", "title": "Mundos virtuales", "color": "marigold", "steps": [{"type": "lesson", "ref": "mundo-virtual", "label": "Leçon", "icon": "📖"}, {"type": "grammar", "ref": "porpara", "label": "Por / Para", "icon": "📝"}, {"type": "text", "ref": "texto-redes", "label": "Lecture", "icon": "📄"}, {"type": "quiz", "ref": "Bac · Module 2 - Mondes virtuels", "threshold": 7, "label": "Quiz", "icon": "🎯"}]}, {"id": "u4", "title": "Arte y mujeres", "color": "plum", "steps": [{"type": "lesson", "ref": "arte-mujeres", "label": "Leçon", "icon": "📖"}, {"type": "grammar", "ref": "gerundio", "label": "Gérondif", "icon": "📝"}, {"type": "text", "ref": "texto-frida", "label": "Lecture", "icon": "📄"}, {"type": "quiz", "ref": "Bac · Module 3 - Art et femmes", "threshold": 7, "label": "Quiz", "icon": "🎯"}]}]};
+const WORDS = [{"rank": 1, "es": "yo", "fr": "je", "cat": "Pronoms & articles"}, {"rank": 2, "es": "tú", "fr": "tu", "cat": "Pronoms & articles"}, {"rank": 3, "es": "él", "fr": "il", "cat": "Pronoms & articles"}, {"rank": 4, "es": "ella", "fr": "elle", "cat": "Pronoms & articles"}, {"rank": 5, "es": "nosotros", "fr": "nous", "cat": "Pronoms & articles"}, {"rank": 6, "es": "vosotros", "fr": "vous (pl. Espagne)", "cat": "Pronoms & articles"}, {"rank": 7, "es": "ellos", "fr": "ils", "cat": "Pronoms & articles"}, {"rank": 8, "es": "ellas", "fr": "elles", "cat": "Pronoms & articles"}, {"rank": 9, "es": "usted", "fr": "vous (formel)", "cat": "Pronoms & articles"}, {"rank": 10, "es": "ustedes", "fr": "vous (pl. formel)", "cat": "Pronoms & articles"}, {"rank": 11, "es": "me", "fr": "me", "cat": "Pronoms & articles"}, {"rank": 12, "es": "te", "fr": "te", "cat": "Pronoms & articles"}, {"rank": 13, "es": "lo", "fr": "le", "cat": "Pronoms & articles"}, {"rank": 14, "es": "la", "fr": "la", "cat": "Pronoms & articles"}, {"rank": 15, "es": "le", "fr": "lui", "cat": "Pronoms & articles"}, {"rank": 16, "es": "nos", "fr": "nous (compl.)", "cat": "Pronoms & articles"}, {"rank": 17, "es": "los", "fr": "les (masc.)", "cat": "Pronoms & articles"}, {"rank": 18, "es": "las", "fr": "les (fém.)", "cat": "Pronoms & articles"}, {"rank": 19, "es": "les", "fr": "leur", "cat": "Pronoms & articles"}, {"rank": 20, "es": "mi", "fr": "mon/ma", "cat": "Pronoms & articles"}, {"rank": 21, "es": "tu", "fr": "ton/ta", "cat": "Pronoms & articles"}, {"rank": 22, "es": "su", "fr": "son/sa", "cat": "Pronoms & articles"}, {"rank": 23, "es": "nuestro", "fr": "notre", "cat": "Pronoms & articles"}, {"rank": 24, "es": "vuestro", "fr": "votre", "cat": "Pronoms & articles"}, {"rank": 25, "es": "mío", "fr": "le mien", "cat": "Pronoms & articles"}, {"rank": 26, "es": "tuyo", "fr": "le tien", "cat": "Pronoms & articles"}, {"rank": 27, "es": "suyo", "fr": "le sien", "cat": "Pronoms & articles"}, {"rank": 28, "es": "este", "fr": "ce (proche)", "cat": "Pronoms & articles"}, {"rank": 29, "es": "ese", "fr": "ce (moyen)", "cat": "Pronoms & articles"}, {"rank": 30, "es": "aquel", "fr": "ce (loin)", "cat": "Pronoms & articles"}, {"rank": 31, "es": "esto", "fr": "ceci", "cat": "Pronoms & articles"}, {"rank": 32, "es": "eso", "fr": "cela", "cat": "Pronoms & articles"}, {"rank": 33, "es": "aquello", "fr": "cela (loin)", "cat": "Pronoms & articles"}, {"rank": 34, "es": "el", "fr": "le", "cat": "Pronoms & articles"}, {"rank": 35, "es": "la (art.)", "fr": "la (article)", "cat": "Pronoms & articles"}, {"rank": 36, "es": "los (art.)", "fr": "les (masc., article)", "cat": "Pronoms & articles"}, {"rank": 37, "es": "las (art.)", "fr": "les (fém., article)", "cat": "Pronoms & articles"}, {"rank": 38, "es": "un", "fr": "un", "cat": "Pronoms & articles"}, {"rank": 39, "es": "una", "fr": "une", "cat": "Pronoms & articles"}, {"rank": 40, "es": "unos", "fr": "des (masc.)", "cat": "Pronoms & articles"}, {"rank": 41, "es": "unas", "fr": "des (fém.)", "cat": "Pronoms & articles"}, {"rank": 42, "es": "quien", "fr": "qui", "cat": "Pronoms & articles"}, {"rank": 43, "es": "que", "fr": "que", "cat": "Pronoms & articles"}, {"rank": 44, "es": "cual", "fr": "lequel", "cat": "Pronoms & articles"}, {"rank": 45, "es": "cuyo", "fr": "dont", "cat": "Pronoms & articles"}, {"rank": 46, "es": "ser", "fr": "être (permanent)", "cat": "Verbes très fréquents"}, {"rank": 47, "es": "estar", "fr": "être (état)", "cat": "Verbes très fréquents"}, {"rank": 48, "es": "tener", "fr": "avoir", "cat": "Verbes très fréquents"}, {"rank": 49, "es": "hacer", "fr": "faire", "cat": "Verbes très fréquents"}, {"rank": 50, "es": "poder", "fr": "pouvoir", "cat": "Verbes très fréquents"}, {"rank": 51, "es": "decir", "fr": "dire", "cat": "Verbes très fréquents"}, {"rank": 52, "es": "ir", "fr": "aller", "cat": "Verbes très fréquents"}, {"rank": 53, "es": "ver", "fr": "voir", "cat": "Verbes très fréquents"}, {"rank": 54, "es": "dar", "fr": "donner", "cat": "Verbes très fréquents"}, {"rank": 55, "es": "saber", "fr": "savoir", "cat": "Verbes très fréquents"}, {"rank": 56, "es": "querer", "fr": "vouloir", "cat": "Verbes très fréquents"}, {"rank": 57, "es": "llegar", "fr": "arriver", "cat": "Verbes très fréquents"}, {"rank": 58, "es": "pasar", "fr": "passer", "cat": "Verbes très fréquents"}, {"rank": 59, "es": "deber", "fr": "devoir", "cat": "Verbes très fréquents"}, {"rank": 60, "es": "poner", "fr": "mettre", "cat": "Verbes très fréquents"}, {"rank": 61, "es": "parecer", "fr": "sembler", "cat": "Verbes très fréquents"}, {"rank": 62, "es": "quedar", "fr": "rester", "cat": "Verbes très fréquents"}, {"rank": 63, "es": "creer", "fr": "croire", "cat": "Verbes très fréquents"}, {"rank": 64, "es": "hablar", "fr": "parler", "cat": "Verbes très fréquents"}, {"rank": 65, "es": "llevar", "fr": "porter/emmener", "cat": "Verbes très fréquents"}, {"rank": 66, "es": "dejar", "fr": "laisser", "cat": "Verbes très fréquents"}, {"rank": 67, "es": "seguir", "fr": "suivre/continuer", "cat": "Verbes très fréquents"}, {"rank": 68, "es": "encontrar", "fr": "trouver", "cat": "Verbes très fréquents"}, {"rank": 69, "es": "llamar", "fr": "appeler", "cat": "Verbes très fréquents"}, {"rank": 70, "es": "venir", "fr": "venir", "cat": "Verbes très fréquents"}, {"rank": 71, "es": "pensar", "fr": "penser", "cat": "Verbes très fréquents"}, {"rank": 72, "es": "salir", "fr": "sortir", "cat": "Verbes très fréquents"}, {"rank": 73, "es": "volver", "fr": "revenir", "cat": "Verbes très fréquents"}, {"rank": 74, "es": "tomar", "fr": "prendre", "cat": "Verbes très fréquents"}, {"rank": 75, "es": "conocer", "fr": "connaître", "cat": "Verbes très fréquents"}, {"rank": 76, "es": "vivir", "fr": "vivre", "cat": "Verbes très fréquents"}, {"rank": 77, "es": "sentir", "fr": "sentir/ressentir", "cat": "Verbes très fréquents"}, {"rank": 78, "es": "tratar", "fr": "essayer/traiter", "cat": "Verbes très fréquents"}, {"rank": 79, "es": "mirar", "fr": "regarder", "cat": "Verbes très fréquents"}, {"rank": 80, "es": "contar", "fr": "raconter/compter", "cat": "Verbes très fréquents"}, {"rank": 81, "es": "empezar", "fr": "commencer", "cat": "Verbes très fréquents"}, {"rank": 82, "es": "esperar", "fr": "attendre/espérer", "cat": "Verbes très fréquents"}, {"rank": 83, "es": "buscar", "fr": "chercher", "cat": "Verbes très fréquents"}, {"rank": 84, "es": "existir", "fr": "exister", "cat": "Verbes très fréquents"}, {"rank": 85, "es": "entrar", "fr": "entrer", "cat": "Verbes très fréquents"}, {"rank": 86, "es": "trabajar", "fr": "travailler", "cat": "Verbes très fréquents"}, {"rank": 87, "es": "escribir", "fr": "écrire", "cat": "Verbes très fréquents"}, {"rank": 88, "es": "perder", "fr": "perdre", "cat": "Verbes très fréquents"}, {"rank": 89, "es": "producir", "fr": "produire", "cat": "Verbes très fréquents"}, {"rank": 90, "es": "ocurrir", "fr": "se produire", "cat": "Verbes très fréquents"}, {"rank": 91, "es": "entender", "fr": "comprendre", "cat": "Verbes très fréquents"}, {"rank": 92, "es": "pedir", "fr": "demander", "cat": "Verbes très fréquents"}, {"rank": 93, "es": "recibir", "fr": "recevoir", "cat": "Verbes très fréquents"}, {"rank": 94, "es": "recordar", "fr": "se souvenir", "cat": "Verbes très fréquents"}, {"rank": 95, "es": "terminar", "fr": "terminer", "cat": "Verbes très fréquents"}, {"rank": 96, "es": "permitir", "fr": "permettre", "cat": "Verbes très fréquents"}, {"rank": 97, "es": "aparecer", "fr": "apparaître", "cat": "Verbes très fréquents"}, {"rank": 98, "es": "conseguir", "fr": "obtenir", "cat": "Verbes très fréquents"}, {"rank": 99, "es": "comenzar", "fr": "commencer", "cat": "Verbes très fréquents"}, {"rank": 100, "es": "servir", "fr": "servir", "cat": "Verbes très fréquents"}, {"rank": 101, "es": "sacar", "fr": "sortir/retirer", "cat": "Verbes très fréquents"}, {"rank": 102, "es": "necesitar", "fr": "avoir besoin", "cat": "Verbes très fréquents"}, {"rank": 103, "es": "mantener", "fr": "maintenir", "cat": "Verbes très fréquents"}, {"rank": 104, "es": "resultar", "fr": "résulter", "cat": "Verbes très fréquents"}, {"rank": 105, "es": "leer", "fr": "lire", "cat": "Verbes très fréquents"}, {"rank": 106, "es": "caer", "fr": "tomber", "cat": "Verbes très fréquents"}, {"rank": 107, "es": "cambiar", "fr": "changer", "cat": "Verbes très fréquents"}, {"rank": 108, "es": "presentar", "fr": "présenter", "cat": "Verbes très fréquents"}, {"rank": 109, "es": "crear", "fr": "créer", "cat": "Verbes très fréquents"}, {"rank": 110, "es": "abrir", "fr": "ouvrir", "cat": "Verbes très fréquents"}, {"rank": 111, "es": "considerar", "fr": "considérer", "cat": "Verbes très fréquents"}, {"rank": 112, "es": "oír", "fr": "entendre", "cat": "Verbes très fréquents"}, {"rank": 113, "es": "acabar", "fr": "finir", "cat": "Verbes très fréquents"}, {"rank": 114, "es": "convertir", "fr": "convertir", "cat": "Verbes très fréquents"}, {"rank": 115, "es": "ganar", "fr": "gagner", "cat": "Verbes très fréquents"}, {"rank": 116, "es": "formar", "fr": "former", "cat": "Verbes très fréquents"}, {"rank": 117, "es": "traer", "fr": "apporter", "cat": "Verbes très fréquents"}, {"rank": 118, "es": "partir", "fr": "partir", "cat": "Verbes très fréquents"}, {"rank": 119, "es": "morir", "fr": "mourir", "cat": "Verbes très fréquents"}, {"rank": 120, "es": "aceptar", "fr": "accepter", "cat": "Verbes très fréquents"}, {"rank": 121, "es": "realizar", "fr": "réaliser", "cat": "Verbes très fréquents"}, {"rank": 122, "es": "suponer", "fr": "supposer", "cat": "Verbes très fréquents"}, {"rank": 123, "es": "comprender", "fr": "comprendre", "cat": "Verbes très fréquents"}, {"rank": 124, "es": "lograr", "fr": "réussir à", "cat": "Verbes très fréquents"}, {"rank": 125, "es": "explicar", "fr": "expliquer", "cat": "Verbes très fréquents"}, {"rank": 126, "es": "preguntar", "fr": "demander (une question)", "cat": "Verbes très fréquents"}, {"rank": 127, "es": "tocar", "fr": "toucher/jouer (instrument)", "cat": "Verbes très fréquents"}, {"rank": 128, "es": "reconocer", "fr": "reconnaître", "cat": "Verbes très fréquents"}, {"rank": 129, "es": "estudiar", "fr": "étudier", "cat": "Verbes très fréquents"}, {"rank": 130, "es": "alcanzar", "fr": "atteindre", "cat": "Verbes très fréquents"}, {"rank": 131, "es": "nacer", "fr": "naître", "cat": "Verbes très fréquents"}, {"rank": 132, "es": "dirigir", "fr": "diriger", "cat": "Verbes très fréquents"}, {"rank": 133, "es": "correr", "fr": "courir", "cat": "Verbes très fréquents"}, {"rank": 134, "es": "utilizar", "fr": "utiliser", "cat": "Verbes très fréquents"}, {"rank": 135, "es": "pagar", "fr": "payer", "cat": "Verbes très fréquents"}, {"rank": 136, "es": "ayudar", "fr": "aider", "cat": "Verbes très fréquents"}, {"rank": 137, "es": "gustar", "fr": "plaire", "cat": "Verbes très fréquents"}, {"rank": 138, "es": "jugar", "fr": "jouer", "cat": "Verbes très fréquents"}, {"rank": 139, "es": "escuchar", "fr": "écouter", "cat": "Verbes très fréquents"}, {"rank": 140, "es": "cumplir", "fr": "accomplir", "cat": "Verbes très fréquents"}, {"rank": 141, "es": "ofrecer", "fr": "offrir", "cat": "Verbes très fréquents"}, {"rank": 142, "es": "descubrir", "fr": "découvrir", "cat": "Verbes très fréquents"}, {"rank": 143, "es": "levantar", "fr": "lever", "cat": "Verbes très fréquents"}, {"rank": 144, "es": "intentar", "fr": "essayer", "cat": "Verbes très fréquents"}, {"rank": 145, "es": "usar", "fr": "utiliser", "cat": "Verbes très fréquents"}, {"rank": 146, "es": "morir", "fr": "mourir", "cat": "Verbes très fréquents"}, {"rank": 147, "es": "subir", "fr": "monter", "cat": "Verbes très fréquents"}, {"rank": 148, "es": "bajar", "fr": "descendre", "cat": "Verbes très fréquents"}, {"rank": 149, "es": "comprar", "fr": "acheter", "cat": "Verbes très fréquents"}, {"rank": 150, "es": "vender", "fr": "vendre", "cat": "Verbes très fréquents"}, {"rank": 151, "es": "dormir", "fr": "dormir", "cat": "Verbes très fréquents"}, {"rank": 152, "es": "despertar", "fr": "réveiller", "cat": "Verbes très fréquents"}, {"rank": 153, "es": "comer", "fr": "manger", "cat": "Verbes très fréquents"}, {"rank": 154, "es": "beber", "fr": "boire", "cat": "Verbes très fréquents"}, {"rank": 155, "es": "cocinar", "fr": "cuisiner", "cat": "Verbes très fréquents"}, {"rank": 156, "es": "limpiar", "fr": "nettoyer", "cat": "Verbes très fréquents"}, {"rank": 157, "es": "lavar", "fr": "laver", "cat": "Verbes très fréquents"}, {"rank": 158, "es": "abrir", "fr": "ouvrir", "cat": "Verbes très fréquents"}, {"rank": 159, "es": "cerrar", "fr": "fermer", "cat": "Verbes très fréquents"}, {"rank": 160, "es": "romper", "fr": "casser", "cat": "Verbes très fréquents"}, {"rank": 161, "es": "construir", "fr": "construire", "cat": "Verbes très fréquents"}, {"rank": 162, "es": "destruir", "fr": "détruire", "cat": "Verbes très fréquents"}, {"rank": 163, "es": "mover", "fr": "bouger", "cat": "Verbes très fréquents"}, {"rank": 164, "es": "parar", "fr": "arrêter", "cat": "Verbes très fréquents"}, {"rank": 165, "es": "continuar", "fr": "continuer", "cat": "Verbes très fréquents"}, {"rank": 166, "es": "acordar", "fr": "décider/s'accorder", "cat": "Verbes très fréquents"}, {"rank": 167, "es": "olvidar", "fr": "oublier", "cat": "Verbes très fréquents"}, {"rank": 168, "es": "soñar", "fr": "rêver", "cat": "Verbes très fréquents"}, {"rank": 169, "es": "imaginar", "fr": "imaginer", "cat": "Verbes très fréquents"}, {"rank": 170, "es": "decidir", "fr": "décider", "cat": "Verbes très fréquents"}, {"rank": 171, "es": "elegir", "fr": "choisir", "cat": "Verbes très fréquents"}, {"rank": 172, "es": "aprender", "fr": "apprendre", "cat": "Verbes très fréquents"}, {"rank": 173, "es": "enseñar", "fr": "enseigner", "cat": "Verbes très fréquents"}, {"rank": 174, "es": "mostrar", "fr": "montrer", "cat": "Verbes très fréquents"}, {"rank": 175, "es": "indicar", "fr": "indiquer", "cat": "Verbes très fréquents"}, {"rank": 176, "es": "señalar", "fr": "signaler", "cat": "Verbes très fréquents"}, {"rank": 177, "es": "acompañar", "fr": "accompagner", "cat": "Verbes très fréquents"}, {"rank": 178, "es": "cuidar", "fr": "prendre soin", "cat": "Verbes très fréquents"}, {"rank": 179, "es": "proteger", "fr": "protéger", "cat": "Verbes très fréquents"}, {"rank": 180, "es": "defender", "fr": "défendre", "cat": "Verbes très fréquents"}, {"rank": 181, "es": "atacar", "fr": "attaquer", "cat": "Verbes très fréquents"}, {"rank": 182, "es": "luchar", "fr": "lutter", "cat": "Verbes très fréquents"}, {"rank": 183, "es": "ganar", "fr": "gagner", "cat": "Verbes très fréquents"}, {"rank": 184, "es": "perder", "fr": "perdre", "cat": "Verbes très fréquents"}, {"rank": 185, "es": "vencer", "fr": "vaincre", "cat": "Verbes très fréquents"}, {"rank": 186, "es": "celebrar", "fr": "célébrer", "cat": "Verbes très fréquents"}, {"rank": 187, "es": "felicitar", "fr": "féliciter", "cat": "Verbes très fréquents"}, {"rank": 188, "es": "agradecer", "fr": "remercier", "cat": "Verbes très fréquents"}, {"rank": 189, "es": "disculpar", "fr": "excuser", "cat": "Verbes très fréquents"}, {"rank": 190, "es": "prometer", "fr": "promettre", "cat": "Verbes très fréquents"}, {"rank": 191, "es": "negar", "fr": "nier", "cat": "Verbes très fréquents"}, {"rank": 192, "es": "afirmar", "fr": "affirmer", "cat": "Verbes très fréquents"}, {"rank": 193, "es": "insistir", "fr": "insister", "cat": "Verbes très fréquents"}, {"rank": 194, "es": "dudar", "fr": "douter", "cat": "Verbes très fréquents"}, {"rank": 195, "es": "confiar", "fr": "faire confiance", "cat": "Verbes très fréquents"}, {"rank": 196, "es": "desconfiar", "fr": "se méfier", "cat": "Verbes très fréquents"}, {"rank": 197, "es": "preferir", "fr": "préférer", "cat": "Verbes très fréquents"}, {"rank": 198, "es": "odiar", "fr": "détester", "cat": "Verbes très fréquents"}, {"rank": 199, "es": "amar", "fr": "aimer (amour)", "cat": "Verbes très fréquents"}, {"rank": 200, "es": "enamorar", "fr": "tomber amoureux", "cat": "Verbes très fréquents"}, {"rank": 201, "es": "casar", "fr": "marier", "cat": "Verbes très fréquents"}, {"rank": 202, "es": "divorciar", "fr": "divorcer", "cat": "Verbes très fréquents"}, {"rank": 203, "es": "nacer", "fr": "naître", "cat": "Verbes très fréquents"}, {"rank": 204, "es": "crecer", "fr": "grandir", "cat": "Verbes très fréquents"}, {"rank": 205, "es": "envejecer", "fr": "vieillir", "cat": "Verbes très fréquents"}, {"rank": 206, "es": "cambiar", "fr": "changer", "cat": "Verbes très fréquents"}, {"rank": 207, "es": "mejorar", "fr": "améliorer", "cat": "Verbes très fréquents"}, {"rank": 208, "es": "empeorar", "fr": "empirer", "cat": "Verbes très fréquents"}, {"rank": 209, "es": "andar", "fr": "marcher", "cat": "Verbes d'action supplémentaires"}, {"rank": 210, "es": "caminar", "fr": "marcher", "cat": "Verbes d'action supplémentaires"}, {"rank": 211, "es": "saltar", "fr": "sauter", "cat": "Verbes d'action supplémentaires"}, {"rank": 212, "es": "nadar", "fr": "nager", "cat": "Verbes d'action supplémentaires"}, {"rank": 213, "es": "volar", "fr": "voler", "cat": "Verbes d'action supplémentaires"}, {"rank": 214, "es": "conducir", "fr": "conduire", "cat": "Verbes d'action supplémentaires"}, {"rank": 215, "es": "viajar", "fr": "voyager", "cat": "Verbes d'action supplémentaires"}, {"rank": 216, "es": "volver", "fr": "revenir", "cat": "Verbes d'action supplémentaires"}, {"rank": 217, "es": "regresar", "fr": "retourner", "cat": "Verbes d'action supplémentaires"}, {"rank": 218, "es": "llegar", "fr": "arriver", "cat": "Verbes d'action supplémentaires"}, {"rank": 219, "es": "marchar", "fr": "partir/marcher", "cat": "Verbes d'action supplémentaires"}, {"rank": 220, "es": "enviar", "fr": "envoyer", "cat": "Verbes d'action supplémentaires"}, {"rank": 221, "es": "mandar", "fr": "envoyer/ordonner", "cat": "Verbes d'action supplémentaires"}, {"rank": 222, "es": "recibir", "fr": "recevoir", "cat": "Verbes d'action supplémentaires"}, {"rank": 223, "es": "firmar", "fr": "signer", "cat": "Verbes d'action supplémentaires"}, {"rank": 224, "es": "dibujar", "fr": "dessiner", "cat": "Verbes d'action supplémentaires"}, {"rank": 225, "es": "pintar", "fr": "peindre", "cat": "Verbes d'action supplémentaires"}, {"rank": 226, "es": "cantar", "fr": "chanter", "cat": "Verbes d'action supplémentaires"}, {"rank": 227, "es": "bailar", "fr": "danser", "cat": "Verbes d'action supplémentaires"}, {"rank": 228, "es": "tocar", "fr": "jouer (musique)", "cat": "Verbes d'action supplémentaires"}, {"rank": 229, "es": "actuar", "fr": "agir/jouer", "cat": "Verbes d'action supplémentaires"}, {"rank": 230, "es": "filmar", "fr": "filmer", "cat": "Verbes d'action supplémentaires"}, {"rank": 231, "es": "grabar", "fr": "enregistrer", "cat": "Verbes d'action supplémentaires"}, {"rank": 232, "es": "fotografiar", "fr": "photographier", "cat": "Verbes d'action supplémentaires"}, {"rank": 233, "es": "imprimir", "fr": "imprimer", "cat": "Verbes d'action supplémentaires"}, {"rank": 234, "es": "copiar", "fr": "copier", "cat": "Verbes d'action supplémentaires"}, {"rank": 235, "es": "borrar", "fr": "effacer", "cat": "Verbes d'action supplémentaires"}, {"rank": 236, "es": "guardar", "fr": "garder/sauvegarder", "cat": "Verbes d'action supplémentaires"}, {"rank": 237, "es": "colocar", "fr": "placer", "cat": "Verbes d'action supplémentaires"}, {"rank": 238, "es": "quitar", "fr": "enlever", "cat": "Verbes d'action supplémentaires"}, {"rank": 239, "es": "añadir", "fr": "ajouter", "cat": "Verbes d'action supplémentaires"}, {"rank": 240, "es": "agregar", "fr": "ajouter", "cat": "Verbes d'action supplémentaires"}, {"rank": 241, "es": "mezclar", "fr": "mélanger", "cat": "Verbes d'action supplémentaires"}, {"rank": 242, "es": "cortar", "fr": "couper", "cat": "Verbes d'action supplémentaires"}, {"rank": 243, "es": "pegar", "fr": "coller", "cat": "Verbes d'action supplémentaires"}, {"rank": 244, "es": "doblar", "fr": "plier", "cat": "Verbes d'action supplémentaires"}, {"rank": 245, "es": "romper", "fr": "casser", "cat": "Verbes d'action supplémentaires"}, {"rank": 246, "es": "reparar", "fr": "réparer", "cat": "Verbes d'action supplémentaires"}, {"rank": 247, "es": "arreglar", "fr": "réparer/arranger", "cat": "Verbes d'action supplémentaires"}, {"rank": 248, "es": "construir", "fr": "construire", "cat": "Verbes d'action supplémentaires"}, {"rank": 249, "es": "destruir", "fr": "détruire", "cat": "Verbes d'action supplémentaires"}, {"rank": 250, "es": "fabricar", "fr": "fabriquer", "cat": "Verbes d'action supplémentaires"}, {"rank": 251, "es": "plantar", "fr": "planter", "cat": "Verbes d'action supplémentaires"}, {"rank": 252, "es": "regar", "fr": "arroser", "cat": "Verbes d'action supplémentaires"}, {"rank": 253, "es": "cosechar", "fr": "récolter", "cat": "Verbes d'action supplémentaires"}, {"rank": 254, "es": "respirar", "fr": "respirer", "cat": "Verbes d'action supplémentaires"}, {"rank": 255, "es": "descansar", "fr": "se reposer", "cat": "Verbes d'action supplémentaires"}, {"rank": 256, "es": "relajar", "fr": "se détendre", "cat": "Verbes d'action supplémentaires"}, {"rank": 257, "es": "despertar", "fr": "se réveiller", "cat": "Verbes d'action supplémentaires"}, {"rank": 258, "es": "acostar", "fr": "se coucher", "cat": "Verbes d'action supplémentaires"}, {"rank": 259, "es": "levantar", "fr": "se lever", "cat": "Verbes d'action supplémentaires"}, {"rank": 260, "es": "vestir", "fr": "s'habiller", "cat": "Verbes d'action supplémentaires"}, {"rank": 261, "es": "desvestir", "fr": "se déshabiller", "cat": "Verbes d'action supplémentaires"}, {"rank": 262, "es": "peinar", "fr": "se coiffer", "cat": "Verbes d'action supplémentaires"}, {"rank": 263, "es": "bañar", "fr": "se baigner", "cat": "Verbes d'action supplémentaires"}, {"rank": 264, "es": "duchar", "fr": "se doucher", "cat": "Verbes d'action supplémentaires"}, {"rank": 265, "es": "afeitar", "fr": "se raser", "cat": "Verbes d'action supplémentaires"}, {"rank": 266, "es": "cero", "fr": "zéro", "cat": "Nombres"}, {"rank": 267, "es": "uno", "fr": "un", "cat": "Nombres"}, {"rank": 268, "es": "dos", "fr": "deux", "cat": "Nombres"}, {"rank": 269, "es": "tres", "fr": "trois", "cat": "Nombres"}, {"rank": 270, "es": "cuatro", "fr": "quatre", "cat": "Nombres"}, {"rank": 271, "es": "cinco", "fr": "cinq", "cat": "Nombres"}, {"rank": 272, "es": "seis", "fr": "six", "cat": "Nombres"}, {"rank": 273, "es": "siete", "fr": "sept", "cat": "Nombres"}, {"rank": 274, "es": "ocho", "fr": "huit", "cat": "Nombres"}, {"rank": 275, "es": "nueve", "fr": "neuf", "cat": "Nombres"}, {"rank": 276, "es": "diez", "fr": "dix", "cat": "Nombres"}, {"rank": 277, "es": "once", "fr": "onze", "cat": "Nombres"}, {"rank": 278, "es": "doce", "fr": "douze", "cat": "Nombres"}, {"rank": 279, "es": "trece", "fr": "treize", "cat": "Nombres"}, {"rank": 280, "es": "catorce", "fr": "quatorze", "cat": "Nombres"}, {"rank": 281, "es": "quince", "fr": "quinze", "cat": "Nombres"}, {"rank": 282, "es": "dieciséis", "fr": "seize", "cat": "Nombres"}, {"rank": 283, "es": "diecisiete", "fr": "dix-sept", "cat": "Nombres"}, {"rank": 284, "es": "dieciocho", "fr": "dix-huit", "cat": "Nombres"}, {"rank": 285, "es": "diecinueve", "fr": "dix-neuf", "cat": "Nombres"}, {"rank": 286, "es": "veinte", "fr": "vingt", "cat": "Nombres"}];
+
+// État
+let state = {
+  stars: parseInt(localStorage.getItem('es_stars') || '0'),
+  readLessons: JSON.parse(localStorage.getItem('es_readLessons') || '[]'),
+  favLessons: JSON.parse(localStorage.getItem('es_favLessons') || '[]'),
+  readTexts: JSON.parse(localStorage.getItem('es_readTexts') || '[]'),
+  knownWords: JSON.parse(localStorage.getItem('es_knownWords') || '[]'),
+  reviewWords: JSON.parse(localStorage.getItem('es_reviewWords') || '[]'),
+  favWords: JSON.parse(localStorage.getItem('es_favWords') || '[]'),
+  ratings: JSON.parse(localStorage.getItem('es_ratings') || '{}'),
+  fcIndex: 0,
+  fcFlipped: false,
+  fcCategory: 'all',
+  fcSearch: '',
+  fcFilter: 'all'
+};
+
+function saveState(){
+  localStorage.setItem('es_stars', state.stars);
+  localStorage.setItem('es_readLessons', JSON.stringify(state.readLessons));
+  localStorage.setItem('es_favLessons', JSON.stringify(state.favLessons));
+  localStorage.setItem('es_readTexts', JSON.stringify(state.readTexts));
+  localStorage.setItem('es_knownWords', JSON.stringify(state.knownWords));
+  localStorage.setItem('es_reviewWords', JSON.stringify(state.reviewWords));
+  localStorage.setItem('es_favWords', JSON.stringify(state.favWords));
+  localStorage.setItem('es_ratings', JSON.stringify(state.ratings));
+  updateHeaderStars();
+}
+
+function addStars(n){
+  state.stars += n;
+  saveState();
+  const icon = document.getElementById('starsIcon');
+  if(icon){ icon.parentElement.classList.add('pop'); setTimeout(()=>icon.parentElement.classList.remove('pop'), 400); }
+}
+
+function updateHeaderStars(){
+  const el = document.getElementById('starsBadge');
+  if(el) el.textContent = state.stars;
+}
+
+// Global Init & Tabs
+document.addEventListener('DOMContentLoaded', ()=>{
+  updateHeaderStars();
+  initTabs();
+  renderAccueil();
+  renderStats();
+  renderParcours();
+  renderLecons();
+  renderGrammaire();
+  renderExercices();
+  renderTextes();
+  renderMindmaps();
+  renderHistoria();
+  renderFlashcards();
+});
+
+function initTabs(){
+  document.querySelectorAll('#tabs .tab-btn').forEach(btn => {
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('#tabs .tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      const target = document.getElementById('panel-' + btn.dataset.tab);
+      if(target) target.classList.add('active');
+    });
+  });
+}
+
+function switchTab(tabName){
+  const btn = document.querySelector(`#tabs .tab-btn[data-tab="${tabName}"]`);
+  if(btn) btn.click();
+}
+
+// ACCUEIL
+function renderAccueil(){
+  const grid = document.getElementById('dashGrid');
+  if(!grid) return;
+  grid.innerHTML = `
+    <div class="dash-item"><span class="num">${APP.lessons.length}</span><div class="lbl">Leçons du bac</div></div>
+    <div class="dash-item"><span class="num">${WORDS.length}</span><div class="lbl">Mots de vocabulaire</div></div>
+    <div class="dash-item"><span class="num">${APP.texts.length}</span><div class="lbl">Textes de lectura</div></div>
+    <div class="dash-item"><span class="num">${APP.mindmaps.length}</span><div class="lbl">Mindmaps</div></div>
+  `;
+}
+
+// STATS
+function renderStats(){
+  const p = document.getElementById('panel-stats');
+  if(!p) return;
+  const known = state.knownWords.length;
+  const review = state.reviewWords.length;
+  const totalW = WORDS.length;
+  const readL = state.readLessons.length;
+  const totalL = APP.lessons.length;
+  const readT = state.readTexts.length;
+  const totalT = APP.texts.length;
+
+  p.innerHTML = `
+    <div class="card-box">
+      <h3>Tes Progrès 📊</h3>
+      <p class="section-note">Suis ton avancée au fur et à mesure que tu révises les notions et le vocabulaire.</p>
+      
+      <div class="stat-bar-row">
+        <div class="stat-bar-label"><span>Vocabulaire maîtrisé</span><b>${known} / ${totalW} (${Math.round(known/totalW*100)}%)</b></div>
+        <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${known/totalW*100}%"></div></div>
+      </div>
+
+      <div class="stat-bar-row">
+        <div class="stat-bar-label"><span>Mots à revoir</span><b>${review}</b></div>
+        <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${review/totalW*100}%; background:var(--rose);"></div></div>
+      </div>
+
+      <div class="stat-bar-row">
+        <div class="stat-bar-label"><span>Leçons lues</span><b>${readL} / ${totalL}</b></div>
+        <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${readL/totalL*100}%; background:var(--amber);"></div></div>
+      </div>
+
+      <div class="stat-bar-row">
+        <div class="stat-bar-label"><span>Textes étudiés</span><b>${readT} / ${totalT}</b></div>
+        <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${readT/totalT*100}%; background:var(--purple);"></div></div>
+      </div>
+    </div>
+  `;
+}
+
+// PARCOURS
+function renderParcours(){
+  const p = document.getElementById('panel-parcours');
+  if(!p) return;
+  let html = `<p class="section-note">Suis le parcours guidé pour valider chaque unité du programme.</p>`;
+
+  APP.path.forEach((unit, uIdx) => {
+    html += `
+      <div class="unit-block">
+        <div class="unit-banner" style="--unit-color:var(--${unit.color});">
+          <div>
+            <div class="unit-sub">Unité ${uIdx+1}</div>
+            <h3>${unit.title}</h3>
+          </div>
+          <div class="unit-count">${unit.steps.length} étapes</div>
+        </div>
+        <div class="path-track">
+    `;
+
+    unit.steps.forEach((st, sIdx) => {
+      const align = (sIdx % 3 === 0) ? 'center' : (sIdx % 3 === 1 ? 'left' : 'right');
+      let done = false;
+      if(st.type === 'lesson') done = state.readLessons.includes(st.ref);
+      if(st.type === 'text') done = state.readTexts.includes(st.ref);
+
+      html += `
+        <div class="path-row ${align}">
+          <div class="step-wrap">
+            <div class="step-node ${done?'done':'current'}" style="--step-color:var(--${unit.color});" onclick="handleStepClick('${st.type}', '${st.ref}')">
+              <span class="step-icon">${st.icon}</span>
+              ${done ? '<span class="step-check">✅</span>' : ''}
+            </div>
+            <div class="step-label">${st.label}</div>
+          </div>
+        </div>
+      `;
+      if(sIdx < unit.steps.length - 1){
+        html += `<div class="path-connector"></div>`;
+      }
+    });
+
+    html += `</div></div>`;
+  });
+
+  p.innerHTML = html;
+}
+
+function handleStepClick(type, ref){
+  if(type === 'lesson'){
+    switchTab('lecons');
+    setTimeout(()=>{
+      const el = document.getElementById('lesson-' + ref);
+      if(el) el.scrollIntoView({behavior:'smooth'});
+    }, 100);
+  } else if(type === 'text'){
+    switchTab('textes');
+    setTimeout(()=>{
+      const el = document.getElementById('text-' + ref);
+      if(el) el.scrollIntoView({behavior:'smooth'});
+    }, 100);
+  } else if(type === 'grammar'){
+    switchTab('grammaire');
+  } else if(type === 'quiz'){
+    switchTab('exercices');
+  }
+}
+
+// LEÇONS
+function renderLecons(){
+  const p = document.getElementById('panel-lecons');
+  if(!p) return;
+  let html = `<p class="section-note">Les synthèses des 4 axes clés du Bac d'Espagnol.</p>`;
+
+  APP.lessons.forEach(l => {
+    const isRead = state.readLessons.includes(l.id);
+    const isFav = state.favLessons.includes(l.id);
+
+    html += `
+      <div class="card-box" id="lesson-${l.id}">
+        <div class="card-head">
+          <span class="axis-tag" style="--card-accent:var(--${l.color});">${l.axis}</span>
+          <button class="fav-btn ${isFav?'active':''}" onclick="toggleFavLesson('${l.id}')">★</button>
+        </div>
+        <h3>${l.title}</h3>
+        <div class="hook">"${l.hook}"</div>
+        
+        <button class="toggle-link" onclick="toggleSummary('${l.id}')">
+          <span>Lire le résumé complet</span> <span class="chev" id="chev-${l.id}">▶</span>
+        </button>
+        
+        <p class="summary collapsed" id="sum-${l.id}">${l.summary}</p>
+
+        <ul class="keypoints">
+          ${l.keyPoints.map(kp => `<li>${kp}</li>`).join('')}
+        </ul>
+
+        <div class="vocab-chips">
+          ${l.vocabIds.map(v => `<span class="vocab-chip"><b>${v}</b></span>`).join('')}
+        </div>
+
+        <div>
+          <button class="read-btn ${isRead?'done':''}" onclick="markLessonRead('${l.id}')">
+            ${isRead ? '✓ Leçon lue' : 'Marquer comme lu (+10 ⭐)'}
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  p.innerHTML = html;
+}
+
+function toggleSummary(id){
+  const sum = document.getElementById('sum-' + id);
+  const chev = document.getElementById('chev-' + id);
+  if(sum && chev){
+    sum.classList.toggle('collapsed');
+    chev.classList.toggle('open');
+  }
+}
+
+function toggleFavLesson(id){
+  if(state.favLessons.includes(id)){
+    state.favLessons = state.favLessons.filter(x=>x!==id);
+  } else {
+    state.favLessons.push(id);
+  }
+  saveState();
+  renderLecons();
+}
+
+function markLessonRead(id){
+  if(!state.readLessons.includes(id)){
+    state.readLessons.push(id);
+    addStars(10);
+    renderLecons();
+    renderStats();
+    renderParcours();
+  }
+}
+
+// GRAMMAIRE
+function renderGrammaire(){
+  const p = document.getElementById('panel-grammaire');
+  if(!p) return;
+  let html = `<p class="section-note">Fiches de grammaire et règles incontournables.</p>`;
+
+  APP.grammar.forEach(g => {
+    html += `
+      <div class="card-box">
+        <h3>${g.title}</h3>
+        <p class="summary" style="display:block;">${g.usage}</p>
+    `;
+
+    if(g.regularTable){
+      html += `<table class="gram-table"><thead><tr><th>Verbe</th><th>Formes</th></tr></thead><tbody>`;
+      for(let k in g.regularTable){
+        html += `<tr><td><b>${k}</b></td><td>${g.regularTable[k].join(', ')}</td></tr>`;
+      }
+      html += `</tbody></table>`;
+    }
+
+    if(g.irregulars){
+      html += `<div style="margin-top:10px;"><b>Irrationnels / Irréguliers :</b></div><div class="pill-list">`;
+      g.irregulars.forEach(irr => {
+        html += `<div class="pill"><b>${irr.inf}</b> : ${irr.forms} ${irr.note?`(${irr.note})`:''}</div>`;
+      });
+      html += `</div>`;
+    }
+
+    if(g.rules){
+      html += `<div class="pill-list">`;
+      g.rules.forEach(r => {
+        html += `<div class="pill"><b>${r.prep}</b> : ${r.uses.join(' · ')}</div>`;
+      });
+      html += `</div>`;
+    }
+
+    if(g.constructions){
+      html += `<div class="pill-list">`;
+      g.constructions.forEach(c => {
+        html += `<div class="pill"><b>${c.pattern}</b> (${c.meaning}) : <i>${c.example}</i></div>`;
+      });
+      html += `</div>`;
+    }
+
+    if(g.examples){
+      html += `<div style="margin-top:10px;"><b>Exemples :</b></div>`;
+      g.examples.forEach(ex => {
+        html += `<div class="example-line">${ex}</div>`;
+      });
+    }
+
+    html += `</div>`;
+  });
+
+  p.innerHTML = html;
+}
+
+// EXERCICES
+function renderExercices(){
+  const p = document.getElementById('panel-exercices');
+  if(!p) return;
+
+  p.innerHTML = `
+    <div class="card-box">
+      <h3>Entraînement ✍️</h3>
+      <p class="section-note">Complète les phrases pour tester tes connaissances.</p>
+      
+      <div class="ex-picker">
+        <button class="fc-icon-btn active" id="ex-btn-pret" onclick="loadExCategory('preterito')">Pretérito</button>
+        <button class="fc-icon-btn" id="ex-btn-porpara" onclick="loadExCategory('porpara')">Por / Para</button>
+        <button class="fc-icon-btn" id="ex-btn-ger" onclick="loadExCategory('gerundio')">Gérondif</button>
+        <button class="fc-icon-btn" id="ex-btn-se" onclick="loadExCategory('serestar')">Ser / Estar</button>
+      </div>
+
+      <div id="exContainer"></div>
+    </div>
+  `;
+
+  loadExCategory('preterito');
+}
+
+function loadExCategory(catKey){
+  document.querySelectorAll('.ex-picker .fc-icon-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('ex-btn-' + (catKey === 'preterito'?'pret':catKey));
+  if(btn) btn.classList.add('active');
+
+  const container = document.getElementById('exContainer');
+  if(!container) return;
+
+  const items = APP.exercises[catKey] || [];
+  let html = '';
+
+  items.forEach((ex, idx) => {
+    html += `
+      <div class="ex-item">
+        <div class="ex-sentence">${ex.q}</div>
+        <div class="ex-row">
+    `;
+
+    if(ex.options){
+      ex.options.forEach(opt => {
+        html += `<button class="ex-choice" onclick="checkExChoice(this, '${opt}', '${ex.a}')">${opt}</button>`;
+      });
+    } else {
+      html += `
+        <input type="text" class="ex-input" id="ex-input-${catKey}-${idx}" placeholder="Ta réponse...">
+        <button class="ex-btn" onclick="checkExInput('${catKey}-${idx}', '${ex.a}')">Vérifier</button>
+      `;
+    }
+
+    html += `
+        </div>
+        <div class="ex-feedback" id="ex-fb-${catKey}-${idx}"></div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function checkExChoice(btn, chosen, correct){
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.ex-choice').forEach(b => {
+    b.disabled = true;
+    if(b.textContent === correct) b.classList.add('correct');
+    else if(b === btn) b.classList.add('wrong');
+  });
+  if(chosen === correct){
+    addStars(2);
+  }
+}
+
+function checkExInput(id, correct){
+  const inp = document.getElementById('ex-input-' + id);
+  const fb = document.getElementById('ex-fb-' + id);
+  if(!inp || !fb) return;
+
+  const val = inp.value.trim().toLowerCase();
+  if(val === correct.toLowerCase()){
+    fb.className = 'ex-feedback ok';
+    fb.innerHTML = '✨ Bravo ! (+2 ⭐)';
+    inp.disabled = true;
+    addStars(2);
+  } else {
+    fb.className = 'ex-feedback ko';
+    fb.innerHTML = `❌ Oups ! La bonne réponse était : <b>${correct}</b>`;
+  }
+}
+
+// TEXTES
+function renderTextes(){
+  const p = document.getElementById('panel-textes');
+  if(!p) return;
+  let html = `<p class="section-note">Textes de compréhension avec vocabulaire et questions.</p>`;
+
+  APP.texts.forEach(t => {
+    const isRead = state.readTexts.includes(t.id);
+
+    html += `
+      <div class="card-box" id="text-${t.id}">
+        <div class="card-head">
+          <span class="axis-tag" style="--card-accent:var(--${t.color});">${t.axis}</span>
+          <span class="vocab-chip">${t.level}</span>
+        </div>
+        <h3>${t.title}</h3>
+        
+        <div class="glossary-grid">
+          ${t.glossary.map(g => `<span class="glossary-chip"><b>${g[0]}</b> = ${g[1]}</span>`).join('')}
+        </div>
+
+        <div class="texto-body">${t.body}</div>
+
+        <div style="margin-top:16px;">
+          <b>Questions de compréhension :</b>
+          ${t.questions.map((q, i) => `
+            <div class="qa-item">
+              <div class="qa-q">${i+1}. ${q.q}</div>
+              <button class="toggle-link" onclick="toggleAnswer('${t.id}-${i}')">Voir la réponse</button>
+              <div class="qa-a" id="qa-${t.id}-${i}">${q.a}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <button class="read-btn ${isRead?'done':''}" onclick="markTextRead('${t.id}')">
+          ${isRead ? '✓ Texte étudié' : 'Marquer comme étudié (+10 ⭐)'}
+        </button>
+      </div>
+    `;
+  });
+
+  p.innerHTML = html;
+}
+
+function toggleAnswer(id){
+  const el = document.getElementById('qa-' + id);
+  if(el) el.classList.toggle('show');
+}
+
+function markTextRead(id){
+  if(!state.readTexts.includes(id)){
+    state.readTexts.push(id);
+    addStars(10);
+    renderTextes();
+    renderStats();
+    renderParcours();
+  }
+}
+
+// MINDMAPS
+function renderMindmaps(){
+  const p = document.getElementById('panel-mindmaps');
+  if(!p) return;
+
+  p.innerHTML = `
+    <div class="card-box">
+      <h3>Mindmaps 🗺️</h3>
+      <p class="section-note">Visualise les liens entre les concepts du programme.</p>
+      
+      <select class="mm-select" id="mmSelect" onchange="loadMindmap(this.value)">
+        ${APP.mindmaps.map((m, i) => `<option value="${i}">${m.title}</option>`).join('')}
+      </select>
+
+      <div id="mmStageContainer"></div>
+      <div class="mm-legend">💡 Clique sur une bulle pour afficher les détails</div>
+    </div>
+  `;
+
+  loadMindmap(0);
+}
+
+function loadMindmap(idx){
+  const m = APP.mindmaps[idx];
+  const container = document.getElementById('mmStageContainer');
+  if(!m || !container) return;
+
+  let html = `
+    <div class="mm-stage">
+      <svg class="mm-lines" viewBox="0 0 400 400">
+  `;
+
+  // Rayons pour positionner les nœuds
+  const count = m.branches.length;
+  const radius = 130;
+  const cx = 200, cy = 200;
+
+  m.branches.forEach((b, i) => {
+    const angle = (i * (2 * Math.PI / count)) - Math.PI / 2;
+    const nx = cx + radius * Math.cos(angle);
+    const ny = cy + radius * Math.sin(angle);
+    html += `<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-dasharray="4"/>`;
+  });
+
+  html += `</svg>`;
+
+  html += `<div class="mm-center" style="background:var(--${m.color});">${m.center}</div>`;
+
+  m.branches.forEach((b, i) => {
+    const angle = (i * (2 * Math.PI / count)) - Math.PI / 2;
+    const nx = cx + radius * Math.cos(angle);
+    const ny = cy + radius * Math.sin(angle);
+    const leftPct = (nx / 400) * 100;
+    const topPct = (ny / 400) * 100;
+
+    html += `
+      <div class="mm-node" style="left:${leftPct}%; top:${topPct}%;" onclick="this.classList.toggle('open')">
+        <b>${b.label}</b>
+        <div class="mm-hint">Toucher pour ouvrir</div>
+        <div class="mm-sub">
+          <ul>${b.items.map(it => `<li>${it}</li>`).join('')}</ul>
+        </div>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+// HISTORIA
+function renderHistoria(){
+  const p = document.getElementById('panel-historia');
+  if(!p) return;
+
+  let html = `
+    <div class="card-box">
+      <h3>Frise Chronologique 🏛️</h3>
+      <p class="section-note">Les grands repères historiques pour enrichir tes copies.</p>
+      <div style="margin-top:16px;">
+  `;
+
+  APP.timeline.forEach(item => {
+    html += `
+      <div class="tl-item">
+        <div class="tl-dot" style="background:var(--${item.color});"></div>
+        <div class="tl-period" style="color:var(--${item.color});">${item.period}</div>
+        <div class="tl-title">${item.title}</div>
+        <div class="tl-text">${item.text}</div>
+      </div>
+    `;
+  });
+
+  html += `</div></div>`;
+  p.innerHTML = html;
+}
+
+// FLASHCARDS
+function renderFlashcards(){
+  const p = document.getElementById('panel-flashcards');
+  if(!p) return;
+
+  // Récupérer la liste des catégories
+  const cats = ['all', ...new Set(WORDS.map(w => w.cat))];
+
+  p.innerHTML = `
+    <div class="card-box">
+      <h3>Flashcards (${WORDS.length} mots) 🎴</h3>
+      
+      <div class="fc-stats-row">
+        <div class="fc-stat total"><span class="num" id="fc-total-num">${WORDS.length}</span><span class="lbl">Total</span></div>
+        <div class="fc-stat known"><span class="num" id="fc-known-num">${state.knownWords.length}</span><span class="lbl">Appris</span></div>
+        <div class="fc-stat review"><span class="num" id="fc-review-num">${state.reviewWords.length}</span><span class="lbl">À revoir</span></div>
+        <div class="fc-stat fav"><span class="num" id="fc-fav-num">${state.favWords.length}</span><span class="lbl">Favoris</span></div>
+      </div>
+
+      <div class="fc-controls">
+        <select class="fc-select" id="fcCatSelect" onchange="filterFC()">
+          ${cats.map(c => `<option value="${c}">${c === 'all' ? 'Toutes les catégories' : c}</option>`).join('')}
+        </select>
+
+        <input type="text" class="fc-search" id="fcSearchInput" placeholder="Chercher un mot..." oninput="filterFC()">
+      </div>
+
+      <div class="fc-controls">
+        <button class="fc-icon-btn active" id="fc-filter-all" onclick="setFCFilter('all')">Tous</button>
+        <button class="fc-icon-btn" id="fc-filter-review" onclick="setFCFilter('review')">À revoir</button>
+        <button class="fc-icon-btn" id="fc-filter-fav" onclick="setFCFilter('fav')">Favoris</button>
+      </div>
+
+      <div class="fc-card-stage">
+        <div class="fc-card" id="fcCard" onclick="flipFCCard()">
+          <div class="fc-face front">
+            <span class="fc-cat-tag" id="fcFrontCat"></span>
+            <span class="fc-rank-tag" id="fcFrontRank"></span>
+            <button class="fc-fav-toggle" id="fcFrontFav" onclick="event.stopPropagation(); toggleFCFav();">★</button>
+            <div class="fc-word-main" id="fcFrontWord"></div>
+            <div class="fc-flip-hint">Clique pour voir la traduction</div>
+          </div>
+          <div class="fc-face back">
+            <span class="fc-cat-tag" id="fcBackCat"></span>
+            <button class="fc-fav-toggle" id="fcBackFav" onclick="event.stopPropagation(); toggleFCFav();">★</button>
+            <div class="fc-word-main" id="fcBackWord"></div>
+            <div class="fc-diff-row" onclick="event.stopPropagation();">
+              ${[1,2,3,4,5].map(s => `<span class="fc-diff-star" onclick="rateWord(${s})">★</span>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-action-row">
+        <button class="fc-action-btn review" onclick="markWordStatus('review')">❌ À revoir</button>
+        <button class="fc-action-btn known" onclick="markWordStatus('known')">✅ Je sais (+1 ⭐)</button>
+      </div>
+
+      <div class="fc-nav-row">
+        <button class="fc-nav-btn" onclick="prevFCCard()">◀</button>
+        <div class="fc-pos-lbl" id="fcPosLbl">1 / 100</div>
+        <button class="fc-nav-btn" onclick="nextFCCard()">▶</button>
+      </div>
+    </div>
+  `;
+
+  updateFCView();
+}
+
+function getFilteredWords(){
+  const cat = state.fcCategory;
+  const search = state.fcSearch.toLowerCase().trim();
+  const filter = state.fcFilter;
+
+  return WORDS.filter(w => {
+    if(cat !== 'all' && w.cat !== cat) return false;
+    if(search && !w.es.toLowerCase().includes(search) && !w.fr.toLowerCase().includes(search)) return false;
+    if(filter === 'review' && !state.reviewWords.includes(w.rank)) return false;
+    if(filter === 'fav' && !state.favWords.includes(w.rank)) return false;
+    return true;
+  });
+}
+
+function updateFCView(){
+  const list = getFilteredWords();
+  const total = list.length;
+
+  if(total === 0){
+    document.getElementById('fcFrontWord').textContent = 'Aucun mot';
+    document.getElementById('fcBackWord').textContent = '-';
+    document.getElementById('fcPosLbl').textContent = '0 / 0';
+    return;
+  }
+
+  if(state.fcIndex >= total) state.fcIndex = 0;
+  if(state.fcIndex < 0) state.fcIndex = total - 1;
+
+  const w = list[state.fcIndex];
+  const card = document.getElementById('fcCard');
+  if(card && state.fcFlipped){
+    card.classList.remove('flipped');
+    state.fcFlipped = false;
+  }
+
+  document.getElementById('fcFrontCat').textContent = w.cat;
+  document.getElementById('fcBackCat').textContent = w.cat;
+  document.getElementById('fcFrontRank').textContent = '#' + w.rank;
+  document.getElementById('fcFrontWord').textContent = w.es;
+  document.getElementById('fcBackWord').textContent = w.fr;
+  document.getElementById('fcPosLbl').textContent = `${state.fcIndex + 1} / ${total}`;
+
+  const isFav = state.favWords.includes(w.rank);
+  document.getElementById('fcFrontFav').className = 'fc-fav-toggle ' + (isFav?'active':'');
+  document.getElementById('fcBackFav').className = 'fc-fav-toggle ' + (isFav?'active':'');
+
+  // Mettre à jour les étoiles de difficulté
+  const rating = state.ratings[w.rank] || 0;
+  const stars = document.querySelectorAll('.fc-diff-star');
+  stars.forEach((s, idx) => {
+    if(idx < rating) s.classList.add('filled');
+    else s.classList.remove('filled');
+  });
+
+  // Numbers
+  document.getElementById('fc-known-num').textContent = state.knownWords.length;
+  document.getElementById('fc-review-num').textContent = state.reviewWords.length;
+  document.getElementById('fc-fav-num').textContent = state.favWords.length;
+}
+
+function flipFCCard(){
+  const card = document.getElementById('fcCard');
+  if(card){
+    card.classList.toggle('flipped');
+    state.fcFlipped = !state.fcFlipped;
+  }
+}
+
+function nextFCCard(){
+  state.fcIndex++;
+  updateFCView();
+}
+
+function prevFCCard(){
+  state.fcIndex--;
+  updateFCView();
+}
+
+function filterFC(){
+  state.fcCategory = document.getElementById('fcCatSelect').value;
+  state.fcSearch = document.getElementById('fcSearchInput').value;
+  state.fcIndex = 0;
+  updateFCView();
+}
+
+function setFCFilter(f){
+  state.fcFilter = f;
+  document.querySelectorAll('.fc-controls .fc-icon-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('fc-filter-' + f);
+  if(btn) btn.classList.add('active');
+  state.fcIndex = 0;
+  updateFCView();
+}
+
+function toggleFCFav(){
+  const list = getFilteredWords();
+  if(list.length === 0) return;
+  const w = list[state.fcIndex];
+
+  if(state.favWords.includes(w.rank)){
+    state.favWords = state.favWords.filter(r => r !== w.rank);
+  } else {
+    state.favWords.push(w.rank);
+  }
+  saveState();
+  updateFCView();
+}
+
+function markWordStatus(status){
+  const list = getFilteredWords();
+  if(list.length === 0) return;
+  const w = list[state.fcIndex];
+
+  if(status === 'known'){
+    if(!state.knownWords.includes(w.rank)){
+      state.knownWords.push(w.rank);
+      addStars(1);
+    }
+    state.reviewWords = state.reviewWords.filter(r => r !== w.rank);
+  } else if(status === 'review'){
+    if(!state.reviewWords.includes(w.rank)){
+      state.reviewWords.push(w.rank);
+    }
+    state.knownWords = state.knownWords.filter(r => r !== w.rank);
+  }
+  saveState();
+  nextFCCard();
+}
+
+function rateWord(rating){
+  const list = getFilteredWords();
+  if(list.length === 0) return;
+  const w = list[state.fcIndex];
+
+  state.ratings[w.rank] = rating;
+  saveState();
+  updateFCView();
+}
+</script>
+</body>
+</html>
